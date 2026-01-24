@@ -8,28 +8,37 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
-       <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
+
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+        <!-- MAIN BACKGROUND -->
+        <div class="min-h-screen bg-[#F0E8D5]">
+
+            <!-- NAVBAR -->
+            <div class="bg-[#F0E8D5]">
+                @include('layouts.navigation')
+            </div>
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
+                <header class="bg-[#212844] shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                        <div class="text-[#212844]">
+                            {{ $header }}
+                        </div>
                     </div>
                 </header>
             @endisset
 
             <!-- Page Content -->
-            <main>
-                 @yield('content')
+            <main class="py-6">
+                {{$slot}}
             </main>
+
         </div>
     </body>
 </html>

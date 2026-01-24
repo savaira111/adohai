@@ -9,60 +9,69 @@ use Illuminate\Support\Str;
 
 class SocialAuthController extends Controller
 {
-    // 1. Redirect ke Provider (Google/FB)
     public function redirect($provider)
     {
-        return Socialite::driver($provider)->redirect();
+        return Socialite::driver($provider)
+            ->with([
+                'prompt' => 'select_account', // <= Memaksa pilih akun Google
+            ])
+            ->redirect();
     }
 
-    // 2. Callback dari Provider
     public function callback($provider)
     {
         try {
             $socialUser = Socialite::driver($provider)->user();
 
-            // Cari user berdasarkan ID provider atau Email
             $user = User::where($provider . '_id', $socialUser->getId())
                         ->orWhere('email', $socialUser->getEmail())
                         ->first();
 
             if (!$user) {
-                // Jika user belum ada, buat baru
+                // Buat user baru + belum verified + profil belum lengkap
                 $user = User::create([
-                    'name' => $socialUser->getName(),
-                    'email' => $socialUser->getEmail(),
-                    'password' => bcrypt(Str::random(16)), // Password dummy acak
-                    'role' => 'user', // Default role
-                    $provider . '_id' => $socialUser->getId(),
-                    'avatar' => $socialUser->getAvatar(),
+                    'name'               => $socialUser->getName(),
+                    'email'              => $socialUser->getEmail(),
+                    'password'           => bcrypt(Str::random(16)),
+                    'role'               => 'user',
+                    $provider . '_id'    => $socialUser->getId(),
+                    'avatar'             => $socialUser->getAvatar(),
+                    'email_verified_at'  => now(),
+                    'is_profile_complete'=> false,
                 ]);
-            } else {
-                // Jika user ada tapi belum link ID provider, update datanya
-                if (empty($user->{$provider . '_id'})) {
-                    $user->update([
-                        $provider . '_id' => $socialUser->getId(),
-                        'avatar' => $socialUser->getAvatar(), // Update avatar jika perlu
-                    ]);
-                }
+
+                Auth::login($user, true);
+
+                return redirect()->route('profile.edit')
+                    ->with('success', 'Akun berhasil dibuat! Silakan lengkapi profil Anda.');
             }
 
-            // Login user
-            Auth::login($user);
+            if (empty($user->{$provider . '_id'})) {
+                $user->update([
+                    $provider . '_id' => $socialUser->getId(),
+                    'avatar'          => $socialUser->getAvatar(),
+                ]);
+            }
 
-            // Redirect sesuai role
+            Auth::login($user, true);
+
+            if (!$user->is_profile_complete) {
+                return redirect()->route('profile.edit')
+                    ->with('info', 'Silakan lengkapi profil Anda sebelum mengakses halaman lain.');
+            }
+
             return $this->redirectBasedOnRole($user);
 
         } catch (\Exception $e) {
-            return redirect('/login')->with('error', 'Gagal login dengan ' . $provider);
+            return redirect()->route('login')
+                ->with('error', 'Gagal login dengan ' . ucfirst($provider));
         }
     }
 
-    // Helper redirect role
     protected function redirectBasedOnRole($user)
     {
-        if ($user->role === 'admin') {
-            return redirect()->intended(route('admin.dashboard'));
-        }
-        return redirect()->intended(route('dashboard'));
+        if ($user->role === 'superadmin') return redirect()->route('dashboard.superadmin');
+        if ($user->role === 'admin')      return redirect()->route('dashboard.admin');
+        return redirect()->route('dashboard.user');
     }
 }

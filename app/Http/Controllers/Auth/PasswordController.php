@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
@@ -17,7 +16,17 @@ class PasswordController extends Controller
     {
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => [
+                'required',
+                'confirmed',
+                // 'min:8',
+                // 'regex:/[A-Z]/',     // huruf besar
+                // 'regex:/[a-z]/',     // huruf kecil
+                // 'regex:/[0-9]/',     // angka
+                // 'regex:/[@$!%*#?&]/' // simbol
+            ],
+        ], [
+            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.'
         ]);
 
         $request->user()->update([

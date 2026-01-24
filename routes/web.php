@@ -1,59 +1,81 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminDashboardController;
 
-// Landing awal
 Route::get('/', function () {
-    return view('welcome');
-});
-
-// === DASHBOARD ROLE ===
-
-// USER
-Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard.user');
-});
-
-// ADMIN
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard.admin');
-});
-
-// SUPERADMIN
-Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
-    Route::get('/superadmin/dashboard', function () {
-        return view('superadmin.dashboard');
-    })->name('dashboard.superadmin');
-
-    Route::get('/manage/admin', function () {
-        return 'Kelola Admin & User';
-    })->name('manage.admin');
-});
-
-// === MANAGEMENT ===
-
-// Admin + Superadmin bisa kelola user
-Route::middleware(['auth', 'verified', 'role:admin,superadmin'])->group(function () {
-    Route::get('/manage/user', function () {
-        return 'Kelola User';
-    })->name('manage.user');
-});
-
-// === SOCIALITE ===
-Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
-Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']);
-
-// === PROFILE ===
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    return redirect()->route('login');
 });
 
 require __DIR__.'/auth.php';
+
+// ================== USER ==================
+Route::middleware(['auth','verified','profile.complete'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard.user');
+    })->name('dashboard.user');
+});
+
+// ================== ADMIN ==================
+Route::middleware(['auth','role:admin','verified'])->group(function () {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard.admin');
+
+    Route::resource('/admin/users', AdminUserController::class)->names([
+        'index' => 'admin.users.index',
+        'create' => 'admin.users.create',
+        'store' => 'admin.users.store',
+        'edit' => 'admin.users.edit',
+        'update' => 'admin.users.update',
+        'destroy' => 'admin.users.destroy'
+    ]);
+});
+
+// ================== SUPERADMIN ==================
+Route::middleware(['auth','role:superadmin','verified'])->group(function () {
+
+    Route::get('/superadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
+        ->name('dashboard.superadmin');
+
+    Route::resource('/superadmin/users', UserManagementController::class)->names([
+        'index' => 'superadmin.users.index',
+        'create' => 'superadmin.users.create',
+        'store' => 'superadmin.users.store',
+        'show' => 'superadmin.users.show',
+        'edit' => 'superadmin.users.edit',
+        'update' => 'superadmin.users.update',
+        'destroy' => 'superadmin.users.destroy',
+    ]);
+
+    // Destroy Confirm
+    Route::delete('/superadmin/users/{id}/destroy-confirm', [UserManagementController::class, 'destroyConfirm'])
+        ->name('superadmin.users.destroy.confirm');
+
+    // Trashed / Restore / Force Delete
+    Route::prefix('superadmin/users')->name('superadmin.users.')->group(function () {
+        Route::get('/trashed', [UserManagementController::class, 'trashed'])->name('trashed');
+        Route::post('/{id}/restore', [UserManagementController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force', [UserManagementController::class, 'forceDelete'])->name('forceDelete');
+    });
+
+});
+
+// ================== LOGIN (Google) ==================
+Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+    ->name('social.redirect');
+
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->name('social.callback');
+
+// ================== PROFILE ==================
+Route::middleware(['auth','verified'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});

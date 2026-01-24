@@ -9,24 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::create('users', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('email')->unique();
-        $table->timestamp('email_verified_at')->nullable();
-        $table->string('password')->nullable(); // Nullable karena login sosmed tidak punya password
+    public function up(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('username')->unique()->nullable(); 
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password')->nullable();
+            $table->enum('role', ['superadmin', 'admin', 'user'])->default('user');
+            $table->string('google_id')->nullable();
+            $table->string('facebook_id')->nullable();
+            $table->string('avatar')->nullable();
+            $table->boolean('is_profile_complete')->default(false); 
+            $table->rememberToken();
+            $table->timestamps();
+            $table->string('phone')->nullable();
+            $table->text('address')->nullable();
 
-        // Tambahan untuk Multi-role & Socialite
-        $table->enum('role', ['admin', 'user'])->default('user');
-        $table->string('google_id')->nullable();
-        $table->string('facebook_id')->nullable();
-        $table->string('avatar')->nullable(); // Opsional: simpan foto profil
+        });
 
-        $table->rememberToken();
-        $table->timestamps();
-    });
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');

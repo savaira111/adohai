@@ -28,7 +28,22 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = Auth::user();
+
+        // --- OTOMATIS AKTIFKAN USER BIASA ---
+        if (!in_array($user->role, ['admin','superadmin'])) {
+            $user->is_active = 1; // aktif saat login
+            $user->save();
+        }
+
+        switch ($user->role) {
+            case 'superadmin':
+                return redirect()->route('dashboard.superadmin');
+            case 'admin':
+                return redirect()->route('dashboard.admin');
+            default:
+                return redirect()->route('dashboard.user');
+        }
     }
 
     /**
@@ -36,10 +51,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+
+        // --- OTOMATIS NONAKTIFKAN USER BIASA SAAT LOGOUT ---
+        if ($user && !in_array($user->role, ['admin','superadmin'])) {
+            $user->is_active = 0; // nonaktif saat logout
+            $user->save();
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');
