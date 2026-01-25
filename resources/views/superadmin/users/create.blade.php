@@ -9,8 +9,18 @@
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="rounded-2xl p-8 shadow-2xl" style="background-color:#212844; color:white;">
 
-              <form action="{{ route('superadmin.users.store') }}" method="POST">
-                 @csrf
+                @if ($errors->any())
+                <div class="mb-4 p-4 bg-red-600 text-white rounded">
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+                <form action="{{ route('superadmin.users.store') }}" method="POST">
+                    @csrf
 
                     <!-- Name -->
                     <div>
@@ -50,7 +60,7 @@
                     <!-- Password -->
                     <div class="relative">
                         <label class="block font-semibold mb-1">Password</label>
-                        <input type="password" id="password"
+                        <input type="password" id="password" name="password"
                             class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
                             placeholder="Enter password" required>
 
@@ -58,13 +68,13 @@
                         <button type="button" id="togglePassword" class="absolute right-3 top-9 text-gray-300 hover:text-white">
                             <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18"/>
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
                             </svg>
                         </button>
 
@@ -90,20 +100,20 @@
                     <!-- Confirm Password -->
                     <div class="relative">
                         <label class="block font-semibold mb-1">Confirm Password</label>
-                        <input type="password" id="confirmPassword"
+                        <input type="password" id="confirmPassword" name="password_confirmation"
                             class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
                             placeholder="Confirm password" required>
 
                         <button type="button" id="toggleConfirm" class="absolute right-3 top-9 text-gray-300 hover:text-white">
                             <svg id="confirmEyeOpen" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             <svg id="confirmEyeClosed" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18"/>
+                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
                             </svg>
                         </button>
                     </div>

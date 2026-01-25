@@ -1,13 +1,11 @@
-@extends('layouts.app')
+<x-app-layout>
+    <div class="p-6">
 
-@section('content')
-<div class="p-6">
+        <h2 class="text-2xl font-semibold text-white mb-4">Trash</h2>
 
-    <h2 class="text-2xl font-semibold text-white mb-4">Trash</h2>
-
-    @if($users->count() === 0)
+        @if($users->count() === 0)
         <p class="text-gray-300">Tidak ada data di trash.</p>
-    @else
+        @else
         <table class="min-w-full bg-[#212844] text-white rounded-lg overflow-hidden border border-[#1a1f33]">
             <thead>
                 <tr class="bg-[#1a1f3b]">
@@ -24,7 +22,7 @@
                     <td class="px-4 py-2 flex gap-2">
 
                         <!-- RESTORE -->
-                        <form action="{{ route('users.restore', $user->id) }}" method="POST">
+                        <form action="{{ route('superadmin.users.restore', $user->id) }}" method="POST">
                             @csrf
                             <button class="px-3 py-1 bg-green-600 rounded hover:bg-green-500">
                                 Restore
@@ -32,7 +30,7 @@
                         </form>
 
                         <!-- FORCE DELETE -->
-                        <form action="{{ route('users.forceDelete', $user->id) }}" method="POST">
+                        <form action="{{ route('superadmin.users.forceDelete', $user->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button class="px-3 py-1 bg-red-600 rounded hover:bg-red-500">
@@ -45,7 +43,6 @@
                 @endforeach
             </tbody>
         </table>
-    @endif
 
-</div>
-@endsection
+    </div>
+</x-app-layout>

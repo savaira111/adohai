@@ -17,10 +17,10 @@ class UserManagementController extends Controller
     public function create()
     {
         return view('superadmin.users.create');
-    }
-
-    public function store(Request $request)
-    {
+        }
+        
+        public function store(Request $request)
+        {
         $request->validate([
             'name'      => 'required|string|max:255',
             'username'  => 'required|string|max:255|unique:users',
@@ -71,7 +71,7 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
-        return view('superadmin.users.confirm-delete', [
+        return view('components.confirm-delete', [
             'deleteUrl' => route('superadmin.users.destroy.confirm', $user->id)
         ]);
     }
