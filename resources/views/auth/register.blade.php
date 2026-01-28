@@ -17,8 +17,7 @@
                     :value="old('username')"
                     placeholder="Enter username"
                     required
-                    autofocus
-                />
+                    autofocus />
                 <x-input-error :messages="$errors->get('username')" class="mt-2 text-red-300" />
             </div>
 
@@ -32,8 +31,7 @@
                     name="name"
                     :value="old('name')"
                     placeholder="Enter Name"
-                    required
-                />
+                    required />
                 <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-300" />
             </div>
 
@@ -47,41 +45,39 @@
                     name="email"
                     :value="old('email')"
                     placeholder="Enter Email"
-                    required
-                />
+                    required />
                 <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-300" />
             </div>
 
             <!-- Password -->
             <div class="relative mt-4">
                 <label for="password" class="block font-semibold mb-1 text-white">Password</label>
-                <input 
-                    type="password" 
-                    name="password" 
+                <input
+                    type="password"
+                    name="password"
                     id="password"
                     class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 border border-white"
-                    placeholder="Enter password" 
-                    required
-                >
+                    placeholder="Enter password"
+                    required>
 
                 <!-- Toggle Eye -->
                 <button type="button" id="toggle-password" class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
                     <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18"/>
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
                     </svg>
                     <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </button>
 
-                @error('password') 
-                    <span class="text-red-400 text-sm">{{ $message }}</span> 
+                @error('password')
+                <span class="text-red-400 text-sm">{{ $message }}</span>
                 @enderror
 
                 <!-- Password Rules (hidden until typing) -->
@@ -107,15 +103,14 @@
             <!-- Confirm Password -->
             <div class="relative mt-4">
                 <label for="confirmPassword" class="block font-semibold mb-1 text-white">Confirm Password</label>
-                <input 
-                    type="password" 
+                <input
+                    type="password"
                     id="confirmPassword"
                     name="password_confirmation"
                     class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 border border-white focus:outline-none"
-                    placeholder="Confirm password" 
+                    placeholder="Confirm password"
                     required
-                    oninput="validateConfirm()"
-                >
+                    oninput="validateConfirm()">
 
                 <!-- Result icon -->
                 <span id="confirmIcon" class="absolute right-3 top-9 opacity-0 transition-all duration-200"></span>
@@ -125,12 +120,20 @@
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </button>
             </div>
+
+            <div class="mt-4">
+                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"></div>
+                @error('g-recaptcha-response')
+                <span class="text-red-400 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
 
             <div class="flex flex-col gap-4 mt-6">
                 <x-primary-button class="w-full justify-center bg-gray text-[#212844] hover:bg-white-200">
@@ -138,10 +141,10 @@
                 </x-primary-button>
 
                 @if (Route::has('login'))
-                    <a href="{{ route('login') }}"
-                        class="text-sm text-gray-300 hover:text-white underline text-center block mt-2">
-                        Already have an account? Login
-                    </a>
+                <a href="{{ route('login') }}"
+                    class="text-sm text-gray-300 hover:text-white underline text-center block mt-2">
+                    Already have an account? Login
+                </a>
                 @endif
 
                 <div class="relative flex py-5 items-center">
@@ -160,83 +163,85 @@
         </form>
     </div>
 
-<script>
-const pw = document.getElementById('password');
-const rulesBox = document.getElementById('pw-rules');
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-pw.addEventListener('input', () => {
-    const val = pw.value;
+    <script>
+        const pw = document.getElementById('password');
+        const rulesBox = document.getElementById('pw-rules');
 
-    if(val.length > 0) rulesBox.classList.remove('hidden');
-    else rulesBox.classList.add('hidden');
+        pw.addEventListener('input', () => {
+            const val = pw.value;
 
-    function check(cond, bar, rule) {
-        const barEl = document.getElementById(bar);
-        const ruleEl = document.getElementById(rule);
+            if (val.length > 0) rulesBox.classList.remove('hidden');
+            else rulesBox.classList.add('hidden');
 
-        if (cond) {
-            barEl.classList.replace('bg-gray-600', 'bg-green-500');
-            ruleEl.classList.replace('text-red-400', 'text-green-400');
-        } else {
-            barEl.classList.replace('bg-green-500', 'bg-gray-600');
-            ruleEl.classList.replace('text-green-400', 'text-red-400');
+            function check(cond, bar, rule) {
+                const barEl = document.getElementById(bar);
+                const ruleEl = document.getElementById(rule);
+
+                if (cond) {
+                    barEl.classList.replace('bg-gray-600', 'bg-green-500');
+                    ruleEl.classList.replace('text-red-400', 'text-green-400');
+                } else {
+                    barEl.classList.replace('bg-green-500', 'bg-gray-600');
+                    ruleEl.classList.replace('text-green-400', 'text-red-400');
+                }
+            }
+
+            check(val.length >= 8, 'bar-length', 'rule-length');
+            check(/[A-Z]/.test(val), 'bar-uppercase', 'rule-uppercase');
+            check(/[a-z]/.test(val), 'bar-lowercase', 'rule-lowercase');
+            check(/[0-9]/.test(val), 'bar-number', 'rule-number');
+            check(/[^A-Za-z0-9]/.test(val), 'bar-symbol', 'rule-symbol');
+        });
+
+        // toggle pw
+        document.getElementById('toggle-password').onclick = () => {
+            if (pw.type === "password") {
+                pw.type = "text";
+                eyeOpen.classList.remove("hidden");
+                eyeClosed.classList.add("hidden");
+            } else {
+                pw.type = "password";
+                eyeOpen.classList.add("hidden");
+                eyeClosed.classList.remove("hidden");
+            }
         }
-    }
 
-    check(val.length >= 8, 'bar-length', 'rule-length');
-    check(/[A-Z]/.test(val), 'bar-uppercase', 'rule-uppercase');
-    check(/[a-z]/.test(val), 'bar-lowercase', 'rule-lowercase');
-    check(/[0-9]/.test(val), 'bar-number', 'rule-number');
-    check(/[^A-Za-z0-9]/.test(val), 'bar-symbol', 'rule-symbol');
-});
+        function validateConfirm() {
+            const main = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword');
+            const icon = document.getElementById('confirmIcon');
 
-// toggle pw
-document.getElementById('toggle-password').onclick = () => {
-    if(pw.type === "password"){
-        pw.type = "text";
-        eyeOpen.classList.remove("hidden");
-        eyeClosed.classList.add("hidden");
-    } else {
-        pw.type = "password";
-        eyeOpen.classList.add("hidden");
-        eyeClosed.classList.remove("hidden");
-    }
-}
+            if (confirm.value === "") {
+                confirm.style.borderColor = "white";
+                icon.style.opacity = "0";
+                icon.innerHTML = "";
+                return;
+            }
 
-function validateConfirm() {
-    const main = document.getElementById('password').value;
-    const confirm = document.getElementById('confirmPassword');
-    const icon = document.getElementById('confirmIcon');
-
-    if(confirm.value === ""){
-        confirm.style.borderColor = "white";
-        icon.style.opacity = "0";
-        icon.innerHTML = "";
-        return;
-    }
-
-    if(main === confirm.value){
-        confirm.style.borderColor = "#22c55e";
-        icon.innerHTML = `
+            if (main === confirm.value) {
+                confirm.style.borderColor = "#22c55e";
+                icon.innerHTML = `
         <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>`;
-    } else {
-        confirm.style.borderColor = "#ef4444";
-        icon.innerHTML = `
+            } else {
+                confirm.style.borderColor = "#ef4444";
+                icon.innerHTML = `
         <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>`;
-    }
+            }
 
-    icon.style.opacity = "1";
-}
+            icon.style.opacity = "1";
+        }
 
-// toggle confirm eye
-document.getElementById('toggle-confirm').onclick = () => {
-    const c = document.getElementById('confirmPassword');
-    c.type = c.type === "password" ? "text" : "password";
-}
-</script>
+        // toggle confirm eye
+        document.getElementById('toggle-confirm').onclick = () => {
+            const c = document.getElementById('confirmPassword');
+            c.type = c.type === "password" ? "text" : "password";
+        }
+    </script>
 
-</x-guest-layout> 
+</x-guest-layout>

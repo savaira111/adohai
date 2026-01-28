@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Http;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,27 +26,49 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        // 1️⃣ VALIDASI ADA CAPTCHA RESPONSE
+        $request->validate([
+            'g-recaptcha-response' => 'required',
+        ], [
+            'g-recaptcha-response.required' => 'Captcha wajib diisi.',
+        ]);
 
+        // 2️⃣ VERIFIKASI KE GOOGLE
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret'   => config('services.recaptcha.secret'),
+                'response' => $request->input('g-recaptcha-response'),
+                'remoteip' => $request->ip(),
+            ]
+        );
+
+        if (!data_get($response->json(), 'success')) {
+            return back()
+                ->withErrors(['g-recaptcha-response' => 'Verifikasi captcha gagal.'])
+                ->withInput();
+        }
+
+        // 3️⃣ AUTH USER
+        $request->authenticate();
         $request->session()->regenerate();
 
         $user = Auth::user();
 
-        // --- OTOMATIS AKTIFKAN USER BIASA ---
-        if (!in_array($user->role, ['admin','superadmin'])) {
-            $user->is_active = 1; // aktif saat login
+        // 4️⃣ AKTIFKAN USER BIASA
+        if (!in_array($user->role, ['admin', 'superadmin'])) {
+            $user->is_active = 1;
             $user->save();
         }
 
-        switch ($user->role) {
-            case 'superadmin':
-                return redirect()->route('dashboard.superadmin');
-            case 'admin':
-                return redirect()->route('dashboard.admin');
-            default:
-                return redirect()->route('dashboard.user');
-        }
+        // 5️⃣ REDIRECT BY ROLE
+        return match ($user->role) {
+            'superadmin' => redirect()->route('dashboard.superadmin'),
+            'admin'      => redirect()->route('dashboard.admin'),
+            default      => redirect()->route('dashboard.user'),
+        };
     }
+
 
     /**
      * Destroy an authenticated session.
@@ -53,9 +77,9 @@ class AuthenticatedSessionController extends Controller
     {
         $user = Auth::user();
 
-        // --- OTOMATIS NONAKTIFKAN USER BIASA SAAT LOGOUT ---
-        if ($user && !in_array($user->role, ['admin','superadmin'])) {
-            $user->is_active = 0; // nonaktif saat logout
+        // --- NONAKTIFKAN USER BIASA SAAT LOGOUT ---
+        if ($user && !in_array($user->role, ['admin', 'superadmin'])) {
+            $user->is_active = 0;
             $user->save();
         }
 

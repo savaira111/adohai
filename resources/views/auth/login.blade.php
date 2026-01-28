@@ -8,7 +8,7 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-           <!-- Login (Email or Username) -->
+            <!-- Login (Email or Username) -->
             <div>
                 <x-input-label for="login" value="Email / Username" class="!text-white" />
 
@@ -21,37 +21,36 @@
                     placeholder="Enter Email / Username"
                     required
                     autofocus
-                    autocomplete="username"
-                />
+                    autocomplete="username" />
 
                 <x-input-error :messages="$errors->get('login')" class="mt-2 text-red-300" />
             </div>
 
-                <!-- password -->
-                <div class="relative">
-                    <label for="password" class="block font-semibold mb-1 text-white">Password</label>
-                    <input type="password" name="password" id="password"
-                        class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        placeholder="Enter password" required>
+            <!-- password -->
+            <div class="relative">
+                <label for="password" class="block font-semibold mb-1 text-white">Password</label>
+                <input type="password" name="password" id="password"
+                    class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    placeholder="Enter password" required>
 
                 <!-- Toggle Eye -->
                 <button type="button" id="toggle-password" class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
                     <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18"/>
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
                     </svg>
                     <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </button>
 
                 @error('password')
-                    <span class="text-red-400 text-sm">{{ $message }}</span>
+                <span class="text-red-400 text-sm">{{ $message }}</span>
                 @enderror
 
                 <!-- Bars + Rules Wrapper -->
@@ -78,13 +77,20 @@
             <div class="flex flex-col gap-4 mt-6">
 
                 @if (Route::has('password.request'))
-                    <a
-                        href="{{ route('password.request') }}"
-                        class="text-sm text-gray-300 hover:text-white underline"
-                    >
-                        Forgot your password?
-                    </a>
+                <a
+                    href="{{ route('password.request') }}"
+                    class="text-sm text-gray-300 hover:text-white underline">
+                    Forgot your password?
+                </a>
                 @endif
+
+                <div class="mt-4">
+                    <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"></div>
+                    @error('g-recaptcha-response')
+                    <span class="text-red-400 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
 
                 <!-- Login Button -->
                 <x-primary-button class="w-full justify-center bg-gray text-[#212844] hover:bg-white-200">
@@ -92,12 +98,11 @@
                 </x-primary-button>
 
                 @if (Route::has('register'))
-                    <a
-                        href="{{ route('register') }}"
-                        class="text-sm text-gray-300 hover:text-white underline text-center block mt-2"
-                    >
-                        Don't have an account? Register
-                    </a>
+                <a
+                    href="{{ route('register') }}"
+                    class="text-sm text-gray-300 hover:text-white underline text-center block mt-2">
+                    Don't have an account? Register
+                </a>
                 @endif
 
                 <div class="relative flex py-5 items-center">
@@ -108,7 +113,7 @@
 
                 <div class="flex justify-center">
                     <a href="{{ route('social.redirect', ['provider' => 'google']) }}"
-                       class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
                         Google
                     </a>
                 </div>
@@ -116,6 +121,8 @@
             </div>
         </form>
     </div>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script>
         const password = document.getElementById('password');
@@ -141,7 +148,7 @@
         };
 
         toggle.addEventListener('click', () => {
-            if(password.type === 'password') {
+            if (password.type === 'password') {
                 password.type = 'text';
                 eyeOpen.classList.remove('hidden');
                 eyeClosed.classList.add('hidden');
@@ -159,11 +166,12 @@
             container.classList.toggle('hidden', val.length === 0);
 
             function check(cond, bar, rule) {
-                cond 
-                    ? (bar.classList.replace('bg-gray-600', 'bg-green-500'),
-                       rule.classList.replace('text-red-400', 'text-green-400'))
-                    : (bar.classList.replace('bg-green-500', 'bg-gray-600'),
-                       rule.classList.replace('text-green-400', 'text-red-400'));
+                cond
+                    ?
+                    (bar.classList.replace('bg-gray-600', 'bg-green-500'),
+                        rule.classList.replace('text-red-400', 'text-green-400')) :
+                    (bar.classList.replace('bg-green-500', 'bg-gray-600'),
+                        rule.classList.replace('text-green-400', 'text-red-400'));
             }
 
             check(val.length >= 8, bars.length, rules.length);
