@@ -106,7 +106,7 @@
                         <x-slot name="content">
                             <div class="bg-[#212844] rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
 
-                              <x-dropdown-link 
+                                <x-dropdown-link 
                                     :href="route('profile.edit')" 
                                     class="block px-4 py-2 !text-white font-semibold hover:bg-[#1a1f3b]">
                                     Profile
@@ -166,10 +166,12 @@
                         <x-responsive-nav-link :href="route('dashboard.user')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             Dashboard
                         </x-responsive-nav-link>
+
                     @elseif(Auth::user()->role === 'admin')
                         <x-responsive-nav-link :href="route('dashboard.admin')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             Dashboard
                         </x-responsive-nav-link>
+
                         <x-responsive-nav-link :href="route('admin.users.index')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             User Management
                         </x-responsive-nav-link>
@@ -183,6 +185,7 @@
                         <x-responsive-nav-link :href="route('dashboard.superadmin')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             Dashboard
                         </x-responsive-nav-link>
+
                         <x-responsive-nav-link :href="route('superadmin.users.index')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             User Management
                         </x-responsive-nav-link>
@@ -191,7 +194,6 @@
                         <x-responsive-nav-link :href="route('superadmin.users.trashed')" class="text-white font-semibold hover:bg-[#1a1f3b]">
                             Trash
                         </x-responsive-nav-link>
-
                     @endif
 
                     <x-responsive-nav-link :href="route('profile.edit')" class="text-white font-semibold hover:bg-[#1a1f3b]">

@@ -29,14 +29,8 @@
                     <p class="text-2xl font-bold">{{ $recentUsers }}</p>
                 </div>
 
-                <div class="bg-[#212844] text-white shadow-xl rounded-2xl p-6 text-center transition transform hover:scale-105">
-                    <div class="text-4xl mb-2">✅</div>
-                    <h3 class="text-lg font-semibold mb-2">Active Users</h3>
-                    <p class="text-2xl font-bold">{{ $activeUsers }}</p>
-                </div>
 
             </div>
-
 
         </div>
     </div>

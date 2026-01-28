@@ -36,7 +36,7 @@
 
             <!-- Page Content -->
             <main class="py-6">
-                {{$slot}}
+                {{ $slot }}
             </main>
 
         </div>

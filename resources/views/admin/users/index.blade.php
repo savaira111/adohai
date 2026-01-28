@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-2xl text-[#212844] leading-tight">
+        <h2 class="font-bold text-2xl text-white leading-tight">
             User Management
         </h2>
     </x-slot>
@@ -21,16 +21,39 @@
                 </div>
             @endif
 
-            <!-- Add User Button -->
-            <div class="flex justify-end">
-                <a href="{{ route('admin.users.create') }}" 
-                   class="flex items-center gap-2 px-4 py-2 bg-[#212844] text-white rounded-xl hover:bg-[#1a1f3b] transition shadow-md">
-                   + Add User
-                </a>
-            </div>
+            <!-- SEARCH + FILTER -->
+            <form method="GET" class="flex gap-2 flex-1">
+                <input type="text"
+                       name="search"
+                       value="{{ request('search') }}"
+                       placeholder="Search username or role..."
+                       class="flex-1 px-4 py-2 rounded-lg bg-[#2a3155] text-white placeholder-gray-300 text-sm outline-none border border-transparent focus:border-[#3b4470]">
 
-            <!-- Users Table -->
-            <div class="bg-[#212844] shadow-xl rounded-2xl overflow-x-auto">
+                <select name="role"
+                        class="px-4 py-2 rounded-lg bg-[#2a3155] text-white text-sm border border-transparent focus:border-[#3b4470]">
+                    <option value="" class="text-gray-700">All Roles</option>
+                    <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>User</option>
+                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="superadmin" {{ request('role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
+                </select>
+
+                <button class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">
+                    Apply
+                </button>
+            </form>
+
+            <!-- ADD USER BUTTON -->
+            @if(Auth::user()->role === 'admin')
+                <div class="flex justify-end">
+                    <a href="{{ route('admin.users.create') }}"
+                       class="px-4 py-2 bg-[#212844] text-white rounded-xl hover:bg-[#1a1f3b] transition shadow-md whitespace-nowrap">
+                       + Add User
+                    </a>
+                </div>
+            @endif
+
+            <!-- TABLE -->
+            <div class="bg-[#212844] shadow-xl rounded-2xl overflow-x-auto mt-2">
                 <table class="min-w-full divide-y divide-gray-700 text-sm">
                     <thead class="bg-[#1a1f3b]">
                         <tr>
@@ -49,36 +72,30 @@
                                 <td class="px-3 py-2 text-white">{{ $user->username ?? '-' }}</td>
                                 <td class="px-3 py-2 text-white">{{ $user->name }}</td>
                                 <td class="px-3 py-2 text-white">{{ $user->email }}</td>
-
-                                <!-- ROLE WITH COLOR -->
                                 <td class="px-3 py-2">
                                     <span class="px-2 py-1 rounded-full text-xs font-semibold
-                                        {{ $user->role == 'superadmin' ? 'bg-red-600 text-white' : ($user->role == 'admin' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white') }}">
+                                        {{ $user->role == 'superadmin'
+                                            ? 'bg-red-600 text-white'
+                                            : ($user->role == 'admin'
+                                                ? 'bg-yellow-500 text-black'
+                                                : 'bg-green-500 text-white') }}">
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
-
-                                <!-- ACTIONS -->
                                 <td class="px-3 py-2 flex gap-2">
                                     @if($user->role === 'user')
-                                        <!-- Edit -->
-                                        <a href="{{ route('admin.users.edit', $user->id) }}"
-                                           class="px-3 py-1 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition shadow-sm">
-                                            Edit
-                                        </a>
-
-                                        <!-- Delete -->
-                                        <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="px-3 py-1 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-sm"
-                                                    onclick="return confirm('Are you sure to delete this user?')">
+                                        @if(Auth::user()->role === 'admin')
+                                            <a href="{{ route('admin.users.edit', $user->id) }}"
+                                               class="px-3 py-1 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition shadow-sm">
+                                                Edit
+                                            </a>
+                                            <button type="button"
+                                                    onclick="confirmDelete({{ $user->id }})"
+                                                    class="px-3 py-1 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-sm">
                                                 Delete
                                             </button>
-                                        </form>
+                                        @endif
                                     @else
-                                        <!-- Admin & Superadmin hanya bisa dilihat -->
                                         <span class="px-3 py-1 bg-gray-600 text-white rounded-xl text-sm">View Only</span>
                                     @endif
                                 </td>
@@ -96,4 +113,41 @@
 
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmDelete(userId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This user will be deleted permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.action = `/admin/users/${userId}`;
+                    form.method = 'POST';
+
+                    let csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfInput);
+
+                    let methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
 </x-app-layout>

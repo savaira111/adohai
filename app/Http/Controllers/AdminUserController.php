@@ -8,99 +8,137 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminUserController extends Controller
 {
-    // Middleware sudah didefinisikan di routes/web.php
-
-    /**
-     * Tampilkan semua users, tapi CRUD hanya untuk user biasa
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->get(); // Semua role
+        $query = User::query();
+
+        if (auth()->user()->role === 'admin') {
+            $query->where('role', '!=', 'superadmin');
+        }
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('username', 'like', '%' . $request->search . '%')
+                  ->orWhere('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Form tambah user (otomatis role user)
-     */
     public function create()
     {
         return view('admin.users.create');
     }
 
-    /**
-     * Simpan user baru (otomatis role user)
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'username' => 'nullable|string|unique:users,username',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'name'     => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:8',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
+        User::create([
+            'name'     => $request->name,
             'username' => $request->username,
-            'email' => $request->email,
-            'role' => 'user',
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'email_verified_at' => now(),
+            'role'     => 'user',
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dibuat!');
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
-    /**
-     * Form edit user (hanya user biasa)
-     */
     public function edit(User $user)
     {
-        if ($user->role !== 'user') {
-            return redirect()->route('admin.users.index')->with('error', 'Hanya bisa mengedit user biasa!');
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('admin.users.index')->with('error', 'View only for admin roles.');
         }
+
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * Update user (hanya user biasa)
-     */
     public function update(Request $request, User $user)
     {
-        if ($user->role !== 'user') {
-            return redirect()->route('admin.users.index')->with('error', 'Hanya bisa mengupdate user biasa!');
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('admin.users.index')->with('error', 'Forbidden.');
         }
 
         $request->validate([
-            'name' => 'required|string',
-            'username' => 'nullable|string|unique:users,username,' . $user->id,
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6',
+            'name'     => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8',
         ]);
 
-        $user->name = $request->name;
-        $user->username = $request->username;
-        $user->email = $request->email;
+        $user->update([
+            'name'     => $request->name,
+            'username' => $request->username,
+            'email'    => $request->email,
+            'password' => $request->password ? Hash::make($request->password) : $user->password,
+        ]);
 
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-        }
-
-        $user->save();
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate!');
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
-    /**
-     * Hapus user (hanya user biasa)
-     */
     public function destroy(User $user)
     {
-        if ($user->role !== 'user') {
-            return redirect()->route('admin.users.index')->with('error', 'Hanya bisa menghapus user biasa!');
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('admin.users.index')->with('error', 'Forbidden.');
         }
 
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus!');
+
+        return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+    }
+
+    // =================== TRASHED USERS ===================
+    public function trashed()
+    {
+        $query = User::onlyTrashed();
+
+        if (auth()->user()->role === 'admin') {
+            $query->where('role', 'user');
+        }
+
+        // HARUS $users supaya view compatible
+        $users = $query->orderBy('deleted_at', 'desc')->get();
+
+        return view('admin.users.trashed', compact('users'));
+    }
+
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('admin.users.trashed')->with('error', 'Forbidden.');
+        }
+
+        $user->restore();
+
+        return redirect()->route('admin.users.trashed')->with('success', 'User restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('admin.users.trashed')->with('error', 'Forbidden.');
+        }
+
+        $user->forceDelete();
+
+        return redirect()->route('admin.users.trashed')->with('success', 'User permanently deleted.');
     }
 }

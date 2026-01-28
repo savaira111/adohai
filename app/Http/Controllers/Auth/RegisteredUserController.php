@@ -44,6 +44,7 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
+            'name' => $request->username, // FIX biar gak error karena DB butuh name
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -52,13 +53,10 @@ class RegisteredUserController extends Controller
             'is_profile_complete' => false, // Profil belum lengkap
         ]);
 
-        // Kirim email ke mailtrap (event masih akan terkirim untuk testing)
         event(new Registered($user));
 
-        // Auto login user
         Auth::login($user);
 
-        // Redirect ke profile edit untuk melengkapi profil
         return redirect()->route('profile.edit')
             ->with('success', 'Registrasi berhasil! Silakan lengkapi profil Anda.');
     }

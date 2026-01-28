@@ -238,4 +238,4 @@ document.getElementById('toggle-confirm').onclick = () => {
 }
 </script>
 
-</x-guest-layout>
+</x-guest-layout> 

@@ -12,6 +12,22 @@
                 Create User
             </h2>
 
+            @if(session('success'))
+                <div class="mb-3 p-2 bg-green-600 text-white rounded">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-3 p-2 bg-red-600 text-white rounded">
+                    <ul class="list-disc ml-4">
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('admin.users.store') }}">
                 @csrf
 
@@ -51,7 +67,6 @@
                         </button>
                     </div>
 
-                    <!-- Rules -->
                     <ul id="rules" class="mt-2 text-xs text-gray-300 space-y-1 hidden">
                         <li data-rule="length">• Min 8 characters</li>
                         <li data-rule="uppercase">• Uppercase letter</li>
@@ -73,17 +88,25 @@
                 <div class="mb-4">
                     <label class="block font-medium mb-1">Confirm Password <span class="text-red-300">*</span></label>
                     <div class="relative">
-                        <input id="confirmPassword" type="password" required
+                        <input id="confirmPassword" type="password" name="password_confirmation" required
                             class="w-full border rounded-lg px-3 py-2 bg-white text-black">
                         <span id="confirmIcon" class="absolute right-3 top-2.5 text-lg hidden text-green-400">✔️</span>
                     </div>
                     <small id="confirmError" class="text-red-400 hidden">Passwords do not match</small>
                 </div>
 
-                <button type="submit"
-                    class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition mt-3">
-                    Create User
-                </button>
+                <!-- BUTTONS -->
+                <div class="flex gap-3 mt-6">
+                    <button type="submit"
+                        class="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
+                        Create User
+                    </button>
+
+                    <a href="{{ route('admin.users.index') }}"
+                        class="flex-1 py-2 bg-gray-600 hover:bg-gray-700 text-white text-center rounded-lg transition">
+                        Cancel
+                    </a>
+                </div>
             </form>
         </div>
     </div>

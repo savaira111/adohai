@@ -53,18 +53,18 @@
                     <div class="relative mb-4">
                         <label for="password" class="block font-semibold">Password (optional)</label>
                         <input type="password" name="password" id="password"
-                               class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-[#2a3155] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="Enter new password if you want to change it">
+                            class="w-full px-4 py-2 rounded-lg border border-gray-600 bg-[#2a3155] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter new password if you want to change it">
 
                         <!-- Toggle show/hide -->
                         <button type="button" id="toggle-password" class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
                             <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
+                                viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18"/>
                             </svg>
                             <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
+                                viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -72,26 +72,26 @@
                             </svg>
                         </button>
 
-                        <!-- Validation bars -->
-                        <div class="flex gap-2 mt-3">
-                            <div class="bar h-3 w-1/5 bg-gray-600 rounded relative" id="bar-length"></div>
-                            <div class="bar h-3 w-1/5 bg-gray-600 rounded relative" id="bar-uppercase"></div>
-                            <div class="bar h-3 w-1/5 bg-gray-600 rounded relative" id="bar-lowercase"></div>
-                            <div class="bar h-3 w-1/5 bg-gray-600 rounded relative" id="bar-number"></div>
-                            <div class="bar h-3 w-1/5 bg-gray-600 rounded relative" id="bar-symbol"></div>
-                        </div>
+                        <!-- WRAPPER HIDDEN DEFAULT -->
+                        <div id="password-rules-wrapper" class="hidden">
+                            <div class="flex gap-2 mt-3">
+                                <div class="bar h-3 w-1/5 bg-gray-600 rounded" id="bar-length"></div>
+                                <div class="bar h-3 w-1/5 bg-gray-600 rounded" id="bar-uppercase"></div>
+                                <div class="bar h-3 w-1/5 bg-gray-600 rounded" id="bar-lowercase"></div>
+                                <div class="bar h-3 w-1/5 bg-gray-600 rounded" id="bar-number"></div>
+                                <div class="bar h-3 w-1/5 bg-gray-600 rounded" id="bar-symbol"></div>
+                            </div>
 
-                        <!-- Rules -->
-                        <ul class="mt-2 text-xs space-y-1 text-gray-400">
-                            <li id="rule-length">• Minimal 8 karakter</li>
-                            <li id="rule-uppercase">• Huruf besar</li>
-                            <li id="rule-lowercase">• Huruf kecil</li>
-                            <li id="rule-number">• Angka</li>
-                            <li id="rule-symbol">• Simbol</li>
-                        </ul>
+                            <ul class="mt-2 text-xs space-y-1 text-gray-400">
+                                <li id="rule-length">• Minimal 8 karakter</li>
+                                <li id="rule-uppercase">• Huruf besar</li>
+                                <li id="rule-lowercase">• Huruf kecil</li>
+                                <li id="rule-number">• Angka</li>
+                                <li id="rule-symbol">• Simbol</li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <!-- Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4">
                         <button type="submit"
                                 class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
@@ -108,74 +108,67 @@
         </div>
     </div>
 
-    <!-- JS -->
-    <script>
-    const password = document.getElementById('password');
-    const toggle = document.getElementById('toggle-password');
-    const eyeOpen = document.getElementById('eye-open');
-    const eyeClosed = document.getElementById('eye-closed');
+<script>
+const password = document.getElementById('password');
+const toggle = document.getElementById('toggle-password');
+const eyeOpen = document.getElementById('eye-open');
+const eyeClosed = document.getElementById('eye-closed');
+const wrapper = document.getElementById('password-rules-wrapper');
 
-    const bars = {
-        length: document.getElementById('bar-length'),
-        uppercase: document.getElementById('bar-uppercase'),
-        lowercase: document.getElementById('bar-lowercase'),
-        number: document.getElementById('bar-number'),
-        symbol: document.getElementById('bar-symbol')
+const bars = {
+    length: document.getElementById('bar-length'),
+    uppercase: document.getElementById('bar-uppercase'),
+    lowercase: document.getElementById('bar-lowercase'),
+    number: document.getElementById('bar-number'),
+    symbol: document.getElementById('bar-symbol')
+};
+
+const rules = {
+    length: document.getElementById('rule-length'),
+    uppercase: document.getElementById('rule-uppercase'),
+    lowercase: document.getElementById('rule-lowercase'),
+    number: document.getElementById('rule-number'),
+    symbol: document.getElementById('rule-symbol')
+};
+
+// toggle password
+toggle.addEventListener('click', () => {
+    const isHidden = password.type === 'password';
+    password.type = isHidden ? 'text' : 'password';
+    eyeOpen.classList.toggle('hidden', !isHidden);
+    eyeClosed.classList.toggle('hidden', isHidden);
+});
+
+// show on focus
+password.addEventListener('focus', () => {
+    wrapper.classList.remove('hidden');
+});
+
+// hide on blur if empty
+password.addEventListener('blur', () => {
+    if (password.value.trim() === '') {
+        wrapper.classList.add('hidden');
+    }
+});
+
+// live update rules
+password.addEventListener('input', () => {
+    const v = password.value;
+    const checks = {
+        length: v.length >= 8,
+        uppercase: /[A-Z]/.test(v),
+        lowercase: /[a-z]/.test(v),
+        number: /[0-9]/.test(v),
+        symbol: /[\W_]/.test(v)
     };
 
-    const rules = {
-        length: document.getElementById('rule-length'),
-        uppercase: document.getElementById('rule-uppercase'),
-        lowercase: document.getElementById('rule-lowercase'),
-        number: document.getElementById('rule-number'),
-        symbol: document.getElementById('rule-symbol')
-    };
+    Object.keys(checks).forEach(key => {
+        bars[key].classList.toggle('bg-green-500', checks[key]);
+        bars[key].classList.toggle('bg-gray-600', !checks[key]);
 
-    // Toggle show / hide password
-    toggle.addEventListener('click', () => {
-        if (password.type === 'password') {
-            password.type = 'text';
-            eyeOpen.classList.remove('hidden');
-            eyeClosed.classList.add('hidden');
-        } else {
-            password.type = 'password';
-            eyeOpen.classList.add('hidden');
-            eyeClosed.classList.remove('hidden');
-        }
+        rules[key].classList.toggle('text-green-500', checks[key]);
+        rules[key].classList.toggle('text-gray-400', !checks[key]);
     });
-
-    // Live password validation (FIXED LOGIC)
-    password.addEventListener('input', () => {
-        const val = password.value;
-
-        const hasLength = val.length >= 8;
-        const hasUpper  = /[A-Z]/.test(val);
-        const hasLower  = /[a-z]/.test(val);
-        const hasNumber = /[0-9]/.test(val);
-        const hasSymbol = /[\W_]/.test(val);
-
-        function checkRule(condition, bar, rule) {
-            if (condition) {
-                bar.classList.remove('bg-gray-600');
-                bar.classList.add('bg-green-500');
-
-                rule.classList.remove('text-gray-400');
-                rule.classList.add('text-green-500');
-            } else {
-                bar.classList.remove('bg-green-500');
-                bar.classList.add('bg-gray-600');
-
-                rule.classList.remove('text-green-500');
-                rule.classList.add('text-gray-400');
-            }
-        }
-
-        // Length must be valid first
-        checkRule(hasLength, bars.length, rules.length);
-        checkRule(hasUpper && hasLength, bars.uppercase, rules.uppercase);
-        checkRule(hasLower && hasLength, bars.lowercase, rules.lowercase);
-        checkRule(hasNumber && hasLength, bars.number, rules.number);
-        checkRule(hasSymbol && hasLength, bars.symbol, rules.symbol);
-    });
+});
 </script>
 </x-app-layout>

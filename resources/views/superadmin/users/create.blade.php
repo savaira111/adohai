@@ -7,7 +7,7 @@
 
     <div class="py-12" style="background-color: #F0E8D5; min-height: 100vh;">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="rounded-2xl p-8 shadow-2xl" style="background-color:#212844; color:white;">
+            <div class="rounded-2xl p-8" style="background-color:#212844; color:white;">
 
                 @if ($errors->any())
                 <div class="mb-4 p-4 bg-red-600 text-white rounded">
@@ -31,12 +31,17 @@
                     </div>
 
                     <!-- Username -->
-                    <div>
-                        <label class="block font-semibold mb-1">Username</label>
-                        <input type="text" name="username" value="{{ old('username') }}"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                            placeholder="Enter username">
-                    </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Username</label>
+                            <input type="text" name="username" value="{{ old('username') }}"
+                                class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
+                                placeholder="Enter username">
+
+                            @error('username')
+                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
 
                     <!-- Email -->
                     <div>
@@ -64,21 +69,19 @@
                             class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
                             placeholder="Enter password" required>
 
-                        <!-- Toggle -->
                         <button type="button" id="togglePassword" class="absolute right-3 top-9 text-gray-300 hover:text-white">
-                            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg id="eyeOpen" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg id="eyeClosed" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
                             </svg>
                         </button>
 
-                        <!-- Bars -->
                         <div id="pwBars" class="flex gap-2 mt-3 hidden">
                             <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="length"></div>
                             <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="upper"></div>
@@ -87,7 +90,6 @@
                             <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="symbol"></div>
                         </div>
 
-                        <!-- Rules -->
                         <ul id="pwRules" class="mt-2 text-xs space-y-1 hidden">
                             <li data-check="length" class="text-red-400">• Minimal 8 karakter</li>
                             <li data-check="upper" class="text-red-400">• Huruf besar</li>
@@ -98,7 +100,7 @@
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="relative">
+                    <div class="relative mb-3">
                         <label class="block font-semibold mb-1">Confirm Password</label>
                         <input type="password" id="confirmPassword" name="password_confirmation"
                             class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
@@ -120,12 +122,14 @@
 
                     <div class="flex gap-4">
                         <button type="submit" id="submitBtn"
-                            class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
+                            class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg disabled:opacity-50"
                             disabled>
                             Add Admin
                         </button>
+
                         <a href="{{ route('superadmin.users.index') }}"
-                            class="flex-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-center transition">
+                            class="flex-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-center transition"
+                            style="box-shadow:none !important;">
                             Cancel
                         </a>
                     </div>
@@ -134,6 +138,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script>
         const password = document.getElementById('password');
@@ -153,7 +159,7 @@
         function updateStatus() {
             const v = password.value;
 
-            if (v.length > 0) {
+            if (v.length) {
                 pwBars.classList.remove('hidden');
                 pwRules.classList.remove('hidden');
             } else {
@@ -162,17 +168,13 @@
             }
 
             document.querySelectorAll('.pwbar').forEach(bar => {
-                const type = bar.dataset.check;
-                const ok = checks[type](v);
-                bar.classList.toggle('bg-green-500', ok);
-                bar.classList.toggle('bg-gray-600', !ok);
+                bar.classList.toggle('bg-green-500', checks[bar.dataset.check](v));
+                bar.classList.toggle('bg-gray-600', !checks[bar.dataset.check](v));
             });
 
             document.querySelectorAll('#pwRules [data-check]').forEach(rule => {
-                const type = rule.dataset.check;
-                const ok = checks[type](v);
-                rule.classList.toggle('text-green-400', ok);
-                rule.classList.toggle('text-red-400', !ok);
+                rule.classList.toggle('text-green-400', checks[rule.dataset.check](v));
+                rule.classList.toggle('text-red-400', !checks[rule.dataset.check](v));
             });
 
             matchConfirm();
@@ -182,44 +184,25 @@
             const p = password.value;
             const c = confirmPassword.value;
 
-            if (!c.length) {
-                confirmPassword.style.borderColor = 'rgba(255,255,255,0.3)';
-                submitBtn.disabled = true;
-                return;
-            }
-
             const allGood = Object.values(checks).every(fn => fn(p)) && p === c;
 
-            if (p === c) {
-                confirmPassword.style.borderColor = 'lime';
-                confirmPassword.style.animation = 'pop .2s';
-            } else {
-                confirmPassword.style.borderColor = 'red';
-            }
-
+            confirmPassword.style.borderColor = p === c && c ? 'lime' : c ? 'red' : 'rgba(255,255,255,.3)';
             submitBtn.disabled = !allGood;
         }
 
-        password.addEventListener('input', updateStatus);
-        confirmPassword.addEventListener('input', matchConfirm);
-
-        // Toggle Password
         document.getElementById('togglePassword').onclick = () => {
             password.type = password.type === 'password' ? 'text' : 'password';
             eyeOpen.classList.toggle('hidden');
             eyeClosed.classList.toggle('hidden');
         };
 
-        // Toggle Confirm Password
         document.getElementById('toggleConfirm').onclick = () => {
             confirmPassword.type = confirmPassword.type === 'password' ? 'text' : 'password';
             confirmEyeOpen.classList.toggle('hidden');
             confirmEyeClosed.classList.toggle('hidden');
         };
 
-        // Anim
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes pop {0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}`;
-        document.head.appendChild(style);
+        password.addEventListener('input', updateStatus);
+        confirmPassword.addEventListener('input', matchConfirm);
     </script>
 </x-app-layout>

@@ -8,26 +8,49 @@ use Illuminate\Support\Facades\Hash;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    // ================= SUPERADMIN ONLY =================
+    public function index(Request $request)
     {
-        $users = User::latest()->get();
+        $query = User::query();
+
+        // Search by username or role
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('username', 'like', "%{$request->search}%")
+                  ->orWhere('role', 'like', "%{$request->search}%");
+            });
+        }
+
+        // Filter by role
+        if ($request->role && $request->role !== 'all') {
+            $query->where('role', $request->role);
+        }
+
+        $users = $query->latest()->get();
+
         return view('superadmin.users.index', compact('users'));
     }
 
     public function create()
     {
         return view('superadmin.users.create');
+    }
+
+    public function store(Request $request)
+    {
+        // Jika login sebagai admin, batasi role hanya "user"
+        if (auth()->user()->role === 'admin' && $request->role !== 'user') {
+            return redirect()->back()->with('error', 'Admins can only create regular users.');
         }
-        
-        public function store(Request $request)
-        {
-        $request->validate([
-            'name'      => 'required|string|max:255',
-            'username'  => 'required|string|max:255|unique:users',
-            'email'     => 'required|email|unique:users',
-            'password'  => 'required|string|min:8',
-            'password_confirmation' => 'required|same:password',
-            'role'      => 'required|in:admin,user',
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => ['required', 'string', 'regex:/^\S+$/u', 'max:255', 'unique:users'],
+            'email' => 'required|email|max:255|unique:users',
+            'role' => 'required|in:admin,superadmin,user',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'username.regex' => 'Usernames cannot contain spaces.',
         ]);
 
         User::create([
@@ -45,67 +68,91 @@ class UserManagementController extends Controller
 
     public function edit(User $user)
     {
+        // Admin hanya bisa edit user biasa
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('superadmin.users.index')
+                             ->with('error', 'Admins can only edit regular users.');
+        }
+
         return view('superadmin.users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
+        // Admin hanya bisa update user biasa
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('superadmin.users.index')
+                             ->with('error', 'Admins can only update regular users.');
+        }
+
         $request->validate([
             'name'      => 'required|string|max:255',
-            'username'  => 'required|string|max:255|unique:users,username,' . $user->id,
+            'username'  => ['required','string','regex:/^\S+$/u','max:255','unique:users,username,' . $user->id],
             'email'     => 'required|email|unique:users,email,' . $user->id,
             'role'      => 'required|in:admin,user,superadmin',
+        ], [
+            'username.regex' => 'Username tidak boleh mengandung spasi.',
         ]);
 
-        $user->update([
-            'name'     => $request->name,
-            'username' => $request->username,
-            'email'    => $request->email,
-            'role'     => $request->role,
-        ]);
+        // Admin tidak boleh ubah role selain "user"
+        if (auth()->user()->role === 'admin') {
+            $user->update([
+                'name'     => $request->name,
+                'username' => $request->username,
+                'email'    => $request->email,
+                // Tetap role "user"
+                'role'     => 'user',
+            ]);
+        } else {
+            $user->update([
+                'name'     => $request->name,
+                'username' => $request->username,
+                'email'    => $request->email,
+                'role'     => $request->role,
+            ]);
+        }
 
         return redirect()
             ->route('superadmin.users.index')
             ->with('success', 'User berhasil diupdate');
     }
 
+    // DELETE → soft delete
     public function destroy(User $user)
     {
-        return view('components.confirm-delete', [
-            'deleteUrl' => route('superadmin.users.destroy.confirm', $user->id)
-        ]);
-    }
+        // Admin tidak bisa hapus admin/superadmin
+        if (auth()->user()->role === 'admin' && $user->role !== 'user') {
+            return redirect()->route('superadmin.users.index')
+                             ->with('error', 'Admins can only delete regular users.');
+        }
 
-    public function destroyConfirm($id)
-    {
-        User::findOrFail($id)->delete();
+        $user->delete();
 
         return redirect()
             ->route('superadmin.users.index')
-            ->with('success', 'User dipindahkan ke trash');
+            ->with('success', 'User moved to trash.');
     }
 
+    // ================== NEW SOFT DELETE FEATURES ==================
+
+    // Show trashed users
     public function trashed()
     {
-        $users = User::onlyTrashed()->get();
+        $users = User::onlyTrashed()->latest()->get();
         return view('superadmin.users.trashed', compact('users'));
     }
 
+    // Restore user
     public function restore($id)
     {
         User::onlyTrashed()->findOrFail($id)->restore();
-
-        return redirect()
-            ->route('superadmin.users.trashed')
-            ->with('success', 'User berhasil direstore');
+        return back()->with('success', 'User berhasil direstore.');
     }
 
+    // Permanently delete user
     public function forceDelete($id)
     {
         User::onlyTrashed()->findOrFail($id)->forceDelete();
-
-        return redirect()
-            ->route('superadmin.users.trashed')
-            ->with('success', 'User dihapus permanen');
+        return back()->with('success', 'User berhasil dihapus permanen.');
     }
 }

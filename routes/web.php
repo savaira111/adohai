@@ -13,7 +13,6 @@ Route::get('/', function () {
 });
 
 require __DIR__.'/auth.php';
-
 // ================== USER ==================
 Route::middleware(['auth','verified','profile.complete'])->group(function () {
     Route::get('/dashboard', function () {
@@ -23,16 +22,30 @@ Route::middleware(['auth','verified','profile.complete'])->group(function () {
 
 // ================== ADMIN ==================
 Route::middleware(['auth','role:admin','verified'])->group(function () {
+
+    // Dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard.admin');
 
+    // ================= USER TRASHED =================
+    Route::get('/admin/users/trashed', [AdminUserController::class, 'trashed'])
+        ->name('admin.users.trashed');
+
+    Route::post('/admin/users/{id}/restore', [AdminUserController::class, 'restore'])
+        ->name('admin.users.restore');
+
+    Route::delete('/admin/users/{id}/force', [AdminUserController::class, 'forceDelete'])
+        ->name('admin.users.forceDelete');
+
+    // ================= RESOURCE CRUD =================
+    // HARUS diletakkan terakhir supaya route trashed/restore/forceDelete tidak ketimpa
     Route::resource('/admin/users', AdminUserController::class)->names([
         'index' => 'admin.users.index',
         'create' => 'admin.users.create',
         'store' => 'admin.users.store',
         'edit' => 'admin.users.edit',
         'update' => 'admin.users.update',
-        'destroy' => 'admin.users.destroy'
+        'destroy' => 'admin.users.destroy',
     ]);
 });
 
@@ -42,13 +55,16 @@ Route::middleware(['auth','role:superadmin','verified'])->group(function () {
     Route::get('/superadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
         ->name('dashboard.superadmin');
 
-        // Destroy Confirm
-        Route::prefix('superadmin/users')->name('superadmin.users.')->group(function () {
-            Route::get('/trashed', [UserManagementController::class, 'trashed'])->name('trashed');
-            Route::post('/{id}/restore', [UserManagementController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force', [UserManagementController::class, 'forceDelete'])->name('forceDelete');
-        });
-        
+    Route::get('/superadmin/roles', [SuperAdminController::class, 'roles'])->name('superadmin.roles');
+    Route::post('/superadmin/roles/save', [SuperAdminController::class, 'saveRoles'])->name('superadmin.roles.save');    
+
+    // Superadmin users routes
+    Route::prefix('superadmin/users')->name('superadmin.users.')->group(function () {
+        Route::get('/trashed', [UserManagementController::class, 'trashed'])->name('trashed');
+        Route::post('/{id}/restore', [UserManagementController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force', [UserManagementController::class, 'forceDelete'])->name('forceDelete');
+    });
+
     Route::resource('/superadmin/users', UserManagementController::class)->names([
         'index' => 'superadmin.users.index',
         'create' => 'superadmin.users.create',
@@ -61,9 +77,6 @@ Route::middleware(['auth','role:superadmin','verified'])->group(function () {
 
     Route::delete('/superadmin/users/{id}/destroy-confirm', [UserManagementController::class, 'destroyConfirm'])
         ->name('superadmin.users.destroy.confirm');
-
-    // Trashed / Restore / Force Delete
-
 });
 
 // ================== LOGIN (Google) ==================
