@@ -8,6 +8,7 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminDashboardController;
 
+
 Route::get('/', function () {
     return redirect()->route('login');
 });

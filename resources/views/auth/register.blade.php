@@ -110,6 +110,7 @@
                 <input 
                     type="password" 
                     id="confirmPassword"
+                    name="password_confirmation"
                     class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 border border-white focus:outline-none"
                     placeholder="Confirm password" 
                     required
