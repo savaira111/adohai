@@ -3,6 +3,18 @@
         <h2 class="font-bold text-2xl text-white leading-tight">Edit User</h2>
     </x-slot>
 
+    <style>
+        /* FIX AUTOFILL */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #212844 inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border: 1px solid #ffffff !important;
+            transition: background-color 9999s ease-in-out 0s;
+        }
+    </style>
+
     <div class="py-12" style="background-color: #F0E8D5; min-height: 100vh;">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
 
@@ -15,9 +27,9 @@
                     <!-- Name -->
                     <div>
                         <label for="name" class="block font-semibold mb-1">Name</label>
-                        <input type="text" name="name" id="name" 
+                        <input type="text" name="name" id="name"
                                value="{{ old('name', $user->name) }}"
-                               class="w-full px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+                               class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
                                placeholder="Enter full name" required>
                         @error('name') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
                     </div>
@@ -25,9 +37,9 @@
                     <!-- Username -->
                     <div>
                         <label for="username" class="block font-semibold mb-1">Username</label>
-                        <input type="text" name="username" id="username" 
+                        <input type="text" name="username" id="username"
                                value="{{ old('username', $user->username) }}"
-                               class="w-full px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+                               class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
                                placeholder="Enter username">
                         @error('username') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
                     </div>
@@ -35,9 +47,9 @@
                     <!-- Email -->
                     <div>
                         <label for="email" class="block font-semibold mb-1">Email</label>
-                        <input type="email" name="email" id="email" 
+                        <input type="email" name="email" id="email"
                                value="{{ old('email', $user->email) }}"
-                               class="w-full px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+                               class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
                                placeholder="Enter email" required>
                         @error('email') <span class="text-red-400 text-sm">{{ $message }}</span> @enderror
                     </div>
@@ -45,16 +57,18 @@
                     <!-- Password -->
                     <div class="relative">
                         <label for="password" class="block font-semibold mb-1">
-                            Password <span class="text-gray-300 text-sm">(Kosongkan jika tidak ingin mengubah)</span>
+                            Password <span class="text-gray-300 text-sm">(Leave empty if you don’t want to change it)</span>
                         </label>
 
                         <input type="password" name="password" id="password"
-                            class="w-full px-4 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-                            placeholder="Enter new password">
+                               class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                               placeholder="Enter new password">
 
                         <!-- Toggle -->
                         <button type="button" id="toggle-password"
-                            class="absolute right-3 top-9 text-gray-400 hover:text-gray-200 select-none">👁</button>
+                                class="absolute right-3 top-9 text-gray-300 hover:text-white select-none">
+                            👁
+                        </button>
 
                         <!-- Validation bars -->
                         <div id="strength-bars" class="flex gap-2 mt-3 opacity-0 transition duration-200">
@@ -67,11 +81,11 @@
 
                         <!-- Rules -->
                         <ul id="rules-list" class="mt-2 text-xs space-y-1 opacity-0 transition duration-200">
-                            <li id="rule-length" class="text-red-400 hidden">• Minimal 8 karakter</li>
-                            <li id="rule-uppercase" class="text-red-400 hidden">• Huruf besar</li>
-                            <li id="rule-lowercase" class="text-red-400 hidden">• Huruf kecil</li>
-                            <li id="rule-number" class="text-red-400 hidden">• Angka</li>
-                            <li id="rule-symbol" class="text-red-400 hidden">• Simbol</li>
+                            <li id="rule-length" class="text-red-400 hidden">• Minimum 8 characters</li>
+                            <li id="rule-uppercase" class="text-red-400 hidden">• Uppercase letter</li>
+                            <li id="rule-lowercase" class="text-red-400 hidden">• Lowercase letter</li>
+                            <li id="rule-number" class="text-red-400 hidden">• Number</li>
+                            <li id="rule-symbol" class="text-red-400 hidden">• Symbol</li>
                         </ul>
                     </div>
 

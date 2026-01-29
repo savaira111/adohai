@@ -11,7 +11,7 @@
             <!-- Back Button -->
             <a href="{{ route('superadmin.users.index') }}"
                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                ← Back
+                Back
             </a>
 
             <!-- Search Form -->
@@ -28,34 +28,78 @@
             </form>
 
             <div class="bg-[#212844] text-white rounded-xl p-4 overflow-x-auto">
-
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-600">
-                            <th class="text-left py-2">ID</th>
+                            <th class="text-left py-2">No</th>
                             <th class="text-left py-2">Username</th>
                             <th class="text-left py-2">Email</th>
                             <th class="text-left py-2">Role</th>
+                            <th class="text-left py-2">Deleted At</th>
                             <th class="text-left py-2">Auto Delete In</th>
                             <th class="text-left py-2">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse($users as $user)
 
+                            {{-- Superadmin tetap tidak ditampilkan --}}
+                            @if($user->role === 'superadmin')
+                                @continue
+                            @endif
+
                             @php
-                                $expiresAt = $user->deleted_at->addDays(7);
+                                $expiresAt = $user->deleted_at->copy()->addDays(7);
+
                                 $remaining = now()->lt($expiresAt)
-                                    ? $expiresAt->diffForHumans(now(), ['parts' => 2, 'short' => true])
-                                    : 'Expired';
+                                    ? $expiresAt->diff(now())
+                                    : null;
                             @endphp
 
-                            <tr class="border-b border-gray-700">
-                                <td class="py-2">{{ $user->id }}</td>
+                            <tr class="border-b border-gray-700 hover:bg-[#2a3155] transition">
+                                <!-- ✅ ID BERURUT -->
+                                <td class="py-2">
+                                    {{ $loop->iteration }}
+                                </td>
+
                                 <td class="py-2">{{ $user->username }}</td>
                                 <td class="py-2">{{ $user->email }}</td>
-                                <td class="py-2">{{ $user->role }}</td>
-                                <td class="py-2">{{ $remaining }}</td>
+
+                                <!-- ✅ ROLE DENGAN WARNA (PASTI MUNCUL) -->
+                                <td class="py-2">
+                                    @if($user->role === 'admin')
+                                        <span style="background:#facc15;color:#000;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">
+                                            Admin
+                                        </span>
+                                    @elseif($user->role === 'user')
+                                        <span style="background:#22c55e;color:#fff;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">
+                                            User
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- ✅ JAM WIB -->
+                                <td class="py-2">
+                                    {{ $user->deleted_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+                                </td>
+
+                                <!-- ✅ AUTO DELETE (HARI + JAM + MENIT) -->
+                                <td class="py-2 text-sm">
+                                    @if($remaining)
+                                        <span class="text-green-400 font-semibold">
+                                            {{ $remaining->d }} days
+                                            {{ $remaining->h }} hours
+                                            {{ $remaining->i }} minute
+                                        </span>
+                                        <div class="text-xs text-gray-400">
+                                            Auto delete:
+                                            {{ $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+                                        </div>
+                                    @else
+                                        <span class="text-red-400 font-semibold">Expired</span>
+                                    @endif
+                                </td>
 
                                 <td class="py-2 flex gap-2">
                                     <!-- Restore -->
@@ -66,7 +110,7 @@
                                         </button>
                                     </form>
 
-                                    <!-- Delete -->
+                                    <!-- Force Delete -->
                                     <button type="button"
                                             data-route="{{ route('superadmin.users.forceDelete', $user->id) }}"
                                             onclick="confirmDelete(this)"
@@ -75,24 +119,24 @@
                                     </button>
                                 </td>
                             </tr>
+
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-300">
+                                <td colspan="7" class="text-center py-4 text-gray-300">
                                     Trash is empty.
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-
             </div>
+
         </div>
     </div>
 
-    <!-- SweetAlert2 CDN -->
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Delete Confirmation Script -->
     <script>
         function confirmDelete(button) {
             let route = button.dataset.route;
@@ -111,17 +155,10 @@
                     form.action = route;
                     form.method = 'POST';
 
-                    let csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = '_token';
-                    csrfInput.value = '{{ csrf_token() }}';
-                    form.appendChild(csrfInput);
-
-                    let methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    methodInput.value = 'DELETE';
-                    form.appendChild(methodInput);
+                    form.innerHTML = `
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                    `;
 
                     document.body.appendChild(form);
                     form.submit();

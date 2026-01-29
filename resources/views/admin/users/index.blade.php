@@ -57,7 +57,8 @@
                 <table class="min-w-full divide-y divide-gray-700 text-sm">
                     <thead class="bg-[#1a1f3b]">
                         <tr>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">ID</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">No</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Profile</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Username</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Name</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Email</th>
@@ -68,7 +69,22 @@
                     <tbody class="divide-y divide-gray-700">
                         @forelse($users as $user)
                             <tr class="hover:bg-[#2a3155] transition">
-                                <td class="px-3 py-2 text-white">{{ $user->id }}</td>
+                                <td class="px-3 py-2 text-white">
+                                    {{ $loop->iteration }}
+                                </td>
+                                
+                                <!-- PROFILE PHOTO OR INITIAL -->
+                                <td class="px-3 py-2">
+                                    @if($user->profile_photo_url)
+                                        <img src="{{ $user->profile_photo_url }}"
+                                             alt="Profile" class="h-10 w-10 rounded-full object-cover border border-white">
+                                    @else
+                                        <div class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-600 text-white font-bold border border-white">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </td>
+
                                 <td class="px-3 py-2 text-white">{{ $user->username ?? '-' }}</td>
                                 <td class="px-3 py-2 text-white">{{ $user->name }}</td>
                                 <td class="px-3 py-2 text-white">{{ $user->email }}</td>
@@ -102,7 +118,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-300">
+                                <td colspan="7" class="text-center py-4 text-gray-300">
                                     No users found.
                                 </td>
                             </tr>

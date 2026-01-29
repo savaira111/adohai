@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-12" style="background-color: #F0E8D5; min-height: 100vh;">
-        <div class="max-w-md mx-auto p-8 rounded-xl shadow-xl" style="background:#212844; color:white;">
+        <div class="max-w-md mx-auto p-8 rounded-2xl shadow-2xl bg-[#212844] text-white">
 
             <h2 class="text-2xl font-bold text-center mb-6">
                 Create User
@@ -28,46 +28,48 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('admin.users.store') }}">
+            <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-6">
                 @csrf
 
                 <!-- NAME -->
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Name <span class="text-red-300">*</span></label>
+                <div>
+                    <label class="block font-semibold mb-1">Name</label>
                     <input type="text" name="name" required
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500 bg-white text-black"
-                        value="{{ old('name') }}">
+                        value="{{ old('name') }}"
+                        class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                        placeholder="Enter full name">
                 </div>
 
                 <!-- USERNAME -->
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Username <span class="text-red-300">*</span></label>
+                <div>
+                    <label class="block font-semibold mb-1">Username</label>
                     <input type="text" name="username" required
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500 bg-white text-black"
-                        value="{{ old('username') }}">
+                        value="{{ old('username') }}"
+                        class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                        placeholder="Enter username">
                 </div>
 
                 <!-- EMAIL -->
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Email <span class="text-red-300">*</span></label>
+                <div>
+                    <label class="block font-semibold mb-1">Email</label>
                     <input type="email" name="email" required
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500 bg-white text-black"
-                        value="{{ old('email') }}">
+                        value="{{ old('email') }}"
+                        class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                        placeholder="Enter email">
                 </div>
 
                 <!-- PASSWORD -->
-                <div class="mb-4 relative">
-                    <label class="block font-medium mb-1">Password <span class="text-red-300">*</span></label>
-                    <div class="relative">
-                        <input id="password" type="password" name="password" required
-                            class="w-full border rounded-lg px-3 py-2 pr-10 bg-white text-black">
-                        <button type="button" id="togglePassword"
-                            class="absolute top-2.5 right-2 text-gray-600">
-                            👁️
-                        </button>
-                    </div>
+                <div class="relative">
+                    <label class="block font-semibold mb-1">
+                        Password <span class="text-gray-300 text-sm">(Leave blank if not changing)</span>
+                    </label>
+                    <input id="password" type="password" name="password" required
+                        class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                        placeholder="Enter password">
+                    <button type="button" id="togglePassword"
+                        class="absolute right-3 top-2.5 text-gray-300 hover:text-white select-none">👁</button>
 
-                    <ul id="rules" class="mt-2 text-xs text-gray-300 space-y-1 hidden">
+                    <ul id="rules" class="mt-2 text-xs space-y-1 text-gray-300 hidden">
                         <li data-rule="length">• Min 8 characters</li>
                         <li data-rule="uppercase">• Uppercase letter</li>
                         <li data-rule="lowercase">• Lowercase letter</li>
@@ -85,13 +87,14 @@
                 </div>
 
                 <!-- CONFIRM PASSWORD -->
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Confirm Password <span class="text-red-300">*</span></label>
-                    <div class="relative">
-                        <input id="confirmPassword" type="password" name="password_confirmation" required
-                            class="w-full border rounded-lg px-3 py-2 bg-white text-black">
-                        <span id="confirmIcon" class="absolute right-3 top-2.5 text-lg hidden text-green-400">✔️</span>
-                    </div>
+                <div class="relative">
+                    <label class="block font-semibold mb-1">Confirm Password</label>
+                    <input id="confirmPassword" type="password" name="password_confirmation" required
+                        class="w-full px-4 py-2 rounded-lg bg-[#212844] border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
+                        placeholder="Confirm password">
+                    <button type="button" id="toggleConfirmPassword"
+                        class="absolute right-3 top-2.5 text-gray-300 hover:text-white select-none">👁</button>
+                    <span id="confirmIcon" class="absolute right-10 top-2.5 text-lg hidden text-green-400">✔️</span>
                     <small id="confirmError" class="text-red-400 hidden">Passwords do not match</small>
                 </div>
 
@@ -103,10 +106,11 @@
                     </button>
 
                     <a href="{{ route('admin.users.index') }}"
-                        class="flex-1 py-2 bg-gray-600 hover:bg-gray-700 text-white text-center rounded-lg transition">
+                        class="flex-1 py-2 bg-gray-500 hover:bg-gray-600 text-white text-center rounded-lg transition">
                         Cancel
                     </a>
                 </div>
+
             </form>
         </div>
     </div>
@@ -118,6 +122,8 @@
         const confirmError = document.getElementById('confirmError');
         const rules = document.getElementById('rules');
         const bars = document.querySelectorAll('.bar');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirm = document.getElementById('toggleConfirmPassword');
 
         const ruleCheck = {
             length: v => v.length >= 8,
@@ -127,6 +133,7 @@
             symbol: v => /[^A-Za-z0-9]/.test(v),
         };
 
+        // Password strength
         pass.addEventListener('input', () => {
             const v = pass.value;
 
@@ -148,6 +155,7 @@
             bars.forEach((bar, i) => bar.style.background = i < score ? 'lightgreen' : '#4B5563');
         });
 
+        // Confirm password check
         confirm.addEventListener('input', () => {
             if (confirm.value === pass.value && confirm.value.length > 0) {
                 confirm.style.borderColor = 'lightgreen';
@@ -160,8 +168,13 @@
             }
         });
 
+        // Toggle password visibility
         togglePassword.addEventListener('click', () => {
             pass.type = pass.type === 'password' ? 'text' : 'password';
+        });
+
+        toggleConfirm.addEventListener('click', () => {
+            confirm.type = confirm.type === 'password' ? 'text' : 'password';
         });
     </script>
 </x-app-layout>

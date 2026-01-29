@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -34,6 +35,22 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // ⬇️ TAMBAHAN AMAN (tidak ganggu kode lain)
+    protected $appends = ['days_left'];
+
+    public function getDaysLeftAttribute()
+    {
+        if (!$this->deleted_at) {
+            return null;
+        }
+
+        return now()->diffInDays(
+            $this->deleted_at->copy()->addDays(7),
+            false
+        );
+    }
+    // ⬆️ SELESAI TAMBAHAN
 
     public function isSuperAdmin(): bool
     {

@@ -46,12 +46,8 @@
             <!-- Add User Button -->
             <div class="flex justify-end mb-4">
                 <a href="{{ route('superadmin.users.create') }}" 
-                   title="Add a new user"
                    class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm font-medium">Add User</span>
+                    + Add User
                 </a>
             </div>
 
@@ -60,42 +56,77 @@
                 <table class="min-w-full divide-y divide-gray-600 text-sm">
                     <thead class="bg-[#2a3155]">
                         <tr>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">ID</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">Username</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">Name</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">Email</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">Role</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-200 uppercase">Actions</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">No</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Profile</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Username</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Name</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Email</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Role</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Created At</th>
+                            <th class="px-3 py-2 text-left text-gray-200 uppercase">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody class="divide-y divide-gray-600">
                         @forelse($users as $user)
-                            <tr class="hover:bg-[#1a1f33] transition duration-200">
-                                <td class="px-3 py-2 whitespace-nowrap text-white">{{ $user->id }}</td>
-                                <td class="px-3 py-2 whitespace-nowrap text-white">{{ $user->username ?? '-' }}</td>
-                                <td class="px-3 py-2 whitespace-nowrap text-white">{{ $user->name }}</td>
-                                <td class="px-3 py-2 whitespace-nowrap text-white">{{ $user->email }}</td>
-                                <td class="px-3 py-2 whitespace-nowrap">
+
+                            {{-- Hide superadmin --}}
+                            @if($user->role === 'superadmin')
+                                @continue
+                            @endif
+
+                            <tr class="hover:bg-[#1a1f33] transition">
+                                <td class="px-3 py-2 text-white">
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <!-- PROFILE PHOTO / INITIAL -->
+                                <td class="px-3 py-2">
+                                    @if(!empty($user->profile_photo_path))
+                                        <img src="{{ Storage::url($user->profile_photo_path) }}"
+                                             alt="Profile" class="h-10 w-10 rounded-full object-cover border border-white">
+                                    @else
+                                        <div class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-600 text-white font-bold border border-white">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="px-3 py-2 text-white">{{ $user->username ?? '-' }}</td>
+                                <td class="px-3 py-2 text-white">{{ $user->name }}</td>
+                                <td class="px-3 py-2 text-white">{{ $user->email }}</td>
+
+                                <td class="px-3 py-2">
                                     <span class="px-2 py-1 rounded-full text-xs font-semibold
-                                        {{ $user->role == 'superadmin' ? 'bg-red-600 text-white' : ($user->role == 'admin' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white') }}">
+                                        {{ $user->role == 'admin' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white' }}">
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
-                                <td class="px-3 py-2 whitespace-nowrap flex gap-2">
+
+                                <!-- Created At -->
+                                <td class="px-3 py-2 text-gray-200">
+                                    {{ $user->created_at
+                                        ? $user->created_at->timezone(config('app.timezone'))->format('d M Y, H:i') . ' WIB'
+                                        : '-' }}
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="px-3 py-2 flex gap-2">
                                     <a href="{{ route('superadmin.users.edit', $user->id) }}"
-                                        class="flex items-center gap-1 px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition shadow">
+                                       class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                                         Edit
                                     </a>
 
                                     <button onclick="deleteUser({{ $user->id }})"
-                                        class="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition shadow">
+                                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
                                         Delete
                                     </button>
                                 </td>
                             </tr>
+
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-300">
+                                <td colspan="8" class="text-center py-4 text-gray-300">
                                     No users found.
                                 </td>
                             </tr>
@@ -112,22 +143,16 @@
         function deleteUser(id) {
             Swal.fire({
                 title: 'Move to Trash?',
-                text: "This user will be moved to trash and can be restored later.",
+                text: "This user will be moved to trash.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Move to Trash',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
                     let form = document.createElement('form');
                     form.action = `/superadmin/users/${id}`;
                     form.method = 'POST';
-
-                    form.innerHTML = `
-                        @csrf
-                        @method('DELETE')
-                    `;
-
+                    form.innerHTML = `@csrf @method('DELETE')`;
                     document.body.appendChild(form);
                     form.submit();
                 }
@@ -135,7 +160,5 @@
         }
     </script>
 
-    <!-- SweetAlert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 </x-app-layout>
