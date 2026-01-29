@@ -65,7 +65,7 @@ Route::middleware(['auth', 'verified', 'profile.complete'])->group(function () {
 | ADMIN ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard.admin');

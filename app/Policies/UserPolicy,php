@@ -53,6 +53,11 @@ class UserPolicy
      */
     public function update(User $authUser, User $user)
     {
+        // admin boleh update dirinya sendiri
+        if ($authUser->role === 'admin' && $authUser->id === $user->id) {
+            return true;
+        }
+
         // admin cuma boleh update user biasa
         if ($authUser->role === 'admin') {
             return $user->role === 'user';

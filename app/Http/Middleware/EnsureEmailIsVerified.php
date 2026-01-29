@@ -15,11 +15,18 @@ class EnsureEmailIsVerified
     {
         $user = Auth::user();
 
-        // Jika user login tapi email belum diverifikasi
-        if ($user && is_null($user->email_verified_at)) {
-            Auth::logout(); // logout langsung
-            return redirect()->route('login')
-                ->with('error', 'Your email is not verified. Please verify your email before logging in.');
+        if ($user) {
+            // 🔥 Bypass verifikasi untuk admin & superadmin
+            if ($user->isAdmin() || $user->isSuperAdmin()) {
+                return $next($request);
+            }
+
+            // Untuk user biasa: cek email_verified_at
+            if (is_null($user->email_verified_at)) {
+                Auth::logout(); // logout langsung
+                return redirect()->route('login')
+                    ->with('error', 'Your email is not verified. Please verify your email before logging in.');
+            }
         }
 
         return $next($request);

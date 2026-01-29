@@ -20,7 +20,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'login' => ['required', 'string'], // email atau username
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -29,19 +29,35 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $login = $this->string('login');
-        $password = $this->string('password');
+        $login = $this->input('login');
+        $password = $this->input('password');
 
-        // Tentukan tipe login: email atau username
-        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        // Tentukan login pakai email atau username
+        $loginType = filter_var($login, FILTER_VALIDATE_EMAIL)
+            ? 'email'
+            : 'username';
 
-        if (!Auth::attempt([$loginType => $login, 'password' => $password], $this->boolean('remember'))) {
+        // Cek user dulu (biar error lebih jelas)
+        $user = User::where($loginType, $login)->first();
+
+        if (! $user) {
             RateLimiter::hit($this->throttleKey());
+
             throw ValidationException::withMessages([
-                'login' => trans('auth.failed'), // error muncul di field login
+                'login' => 'Email atau username tidak ditemukan.',
             ]);
         }
 
+        // Cek password
+        if (! Auth::attempt([$loginType => $login, 'password' => $password], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'password' => 'Password yang Anda masukkan salah.',
+            ]);
+        }
+
+        // Login sukses
         RateLimiter::clear($this->throttleKey());
         $this->session()->regenerate();
     }
@@ -57,15 +73,12 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'login' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'login' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
         ]);
     }
 
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+        return Str::lower($this->input('login')).'|'.$this->ip();
     }
 }

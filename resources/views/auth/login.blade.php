@@ -5,10 +5,10 @@
         <!-- Session Status -->
         <x-auth-session-status class="mb-4 text-green-300" :status="session('status')" />
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" id="login-form">
             @csrf
 
-            <!-- Login (Email or Username) -->
+            <!-- Login -->
             <div>
                 <x-input-label for="login" value="Email / Username" class="!text-white" />
 
@@ -26,91 +26,76 @@
                 <x-input-error :messages="$errors->get('login')" class="mt-2 text-red-300" />
             </div>
 
-            <!-- password -->
-            <div class="relative">
+            <!-- Password -->
+            <div class="relative mt-4">
                 <label for="password" class="block font-semibold mb-1 text-white">Password</label>
-                <input type="password" name="password" id="password"
-                    class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                    placeholder="Enter password" required>
+
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white border border-gray-500 focus:outline-none"
+                    placeholder="Enter password"
+                    required>
 
                 <!-- Toggle Eye -->
-                <button type="button" id="toggle-password" class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
-                    <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
-                    </svg>
-                    <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <button type="button" id="toggle-password"
+                    class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
+                    <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
+                    </svg> <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </button>
 
                 @error('password')
                 <span class="text-red-400 text-sm">{{ $message }}</span>
                 @enderror
-
-                <!-- Bars + Rules Wrapper -->
-                <div id="password-rules" class="mt-3 hidden">
-                    <div class="flex gap-2">
-                        <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-length"></div>
-                        <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-uppercase"></div>
-                        <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-lowercase"></div>
-                        <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-number"></div>
-                        <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-symbol"></div>
-                    </div>
-
-                    <ul class="mt-2 text-xs space-y-1">
-                        <li id="rule-length" class="text-red-400">• Minimal 8 karakter</li>
-                        <li id="rule-uppercase" class="text-red-400">• Huruf besar</li>
-                        <li id="rule-lowercase" class="text-red-400">• Huruf kecil</li>
-                        <li id="rule-number" class="text-red-400">• Angka</li>
-                        <li id="rule-symbol" class="text-red-400">• Simbol</li>
-                    </ul>
-                </div>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col gap-4 mt-6">
 
+                <!-- Forgot Password -->
                 @if (Route::has('password.request'))
-                <a
-                    href="{{ route('password.request') }}"
+                <a href="{{ route('password.request') }}"
                     class="text-sm text-gray-300 hover:text-white underline">
                     Forgot your password?
                 </a>
                 @endif
 
-                <div class="mt-4">
+                <!-- CAPTCHA -->
+                <div id="captcha-wrapper" class="p-3 rounded border border-gray-500 transition flex flex-col items-center">
                     <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"></div>
-                    @error('g-recaptcha-response')
-                    <span class="text-red-400 text-sm">{{ $message }}</span>
-                    @enderror
+
+                    <span id="captcha-error"
+                        class="text-red-400 text-sm mt-2 hidden text-center">
+                        ⚠️ Harap verifikasi bahwa Anda bukan robot.
+                    </span>
                 </div>
 
-
                 <!-- Login Button -->
-                <x-primary-button class="w-full justify-center bg-gray text-[#212844] hover:bg-white-200">
+                <x-primary-button class="w-full justify-center bg-gray text-[#212844]">
                     Log in
                 </x-primary-button>
 
+                <!-- Register -->
                 @if (Route::has('register'))
-                <a
-                    href="{{ route('register') }}"
-                    class="text-sm text-gray-300 hover:text-white underline text-center block mt-2">
+                <a href="{{ route('register') }}"
+                    class="text-sm text-gray-300 hover:text-white underline text-center">
                     Don't have an account? Register
                 </a>
                 @endif
 
+                <!-- Divider -->
                 <div class="relative flex py-5 items-center">
                     <div class="flex-grow border-t border-gray-500"></div>
                     <span class="flex-shrink-0 mx-4 text-gray-300">Or Login With</span>
                     <div class="flex-grow border-t border-gray-500"></div>
                 </div>
 
+                <!-- GOOGLE LOGIN -->
                 <div class="flex justify-center">
                     <a href="{{ route('social.redirect', ['provider' => 'google']) }}"
                         class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
@@ -122,64 +107,46 @@
         </form>
     </div>
 
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- reCAPTCHA BAHASA INDONESIA -->
+    <script src="https://www.google.com/recaptcha/api.js?hl=id" async defer></script>
 
     <script>
+        const form = document.getElementById('login-form');
         const password = document.getElementById('password');
-        const toggle = document.getElementById('toggle-password');
-        const eyeOpen = document.getElementById('eye-open');
-        const eyeClosed = document.getElementById('eye-closed');
-        const container = document.getElementById('password-rules');
+        const captchaError = document.getElementById('captcha-error');
+        const captchaWrapper = document.getElementById('captcha-wrapper');
 
-        const bars = {
-            length: document.getElementById('bar-length'),
-            uppercase: document.getElementById('bar-uppercase'),
-            lowercase: document.getElementById('bar-lowercase'),
-            number: document.getElementById('bar-number'),
-            symbol: document.getElementById('bar-symbol')
-        };
+        // toggle eye
+        document.getElementById('toggle-password').addEventListener('click', () => {
+            const open = document.getElementById('eye-open');
+            const closed = document.getElementById('eye-closed');
 
-        const rules = {
-            length: document.getElementById('rule-length'),
-            uppercase: document.getElementById('rule-uppercase'),
-            lowercase: document.getElementById('rule-lowercase'),
-            number: document.getElementById('rule-number'),
-            symbol: document.getElementById('rule-symbol')
-        };
-
-        toggle.addEventListener('click', () => {
             if (password.type === 'password') {
                 password.type = 'text';
-                eyeOpen.classList.remove('hidden');
-                eyeClosed.classList.add('hidden');
+                open.classList.remove('hidden');
+                closed.classList.add('hidden');
             } else {
                 password.type = 'password';
-                eyeOpen.classList.add('hidden');
-                eyeClosed.classList.remove('hidden');
+                open.classList.add('hidden');
+                closed.classList.remove('hidden');
             }
         });
 
-        password.addEventListener('input', () => {
-            const val = password.value;
+        // CEGAH SUBMIT KALAU CAPTCHA BELUM DICENTANG
+        form.addEventListener('submit', function(e) {
+            const captchaResponse = grecaptcha.getResponse();
 
-            // Show/hide rules
-            container.classList.toggle('hidden', val.length === 0);
+            if (!captchaResponse) {
+                e.preventDefault(); // ⛔ STOP SUBMIT
+                captchaError.classList.remove('hidden');
+                captchaWrapper.classList.remove('border-gray-500');
+                captchaWrapper.classList.add('border-red-500');
 
-            function check(cond, bar, rule) {
-                cond
-                    ?
-                    (bar.classList.replace('bg-gray-600', 'bg-green-500'),
-                        rule.classList.replace('text-red-400', 'text-green-400')) :
-                    (bar.classList.replace('bg-green-500', 'bg-gray-600'),
-                        rule.classList.replace('text-green-400', 'text-red-400'));
+                captchaWrapper.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
             }
-
-            check(val.length >= 8, bars.length, rules.length);
-            check(/[A-Z]/.test(val), bars.uppercase, rules.uppercase);
-            check(/[a-z]/.test(val), bars.lowercase, rules.lowercase);
-            check(/[0-9]/.test(val), bars.number, rules.number);
-            check(/[^A-Za-z0-9]/.test(val), bars.symbol, rules.symbol);
         });
     </script>
-
 </x-guest-layout>
