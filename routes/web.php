@@ -34,7 +34,7 @@ require __DIR__ . '/auth.php';
  * USER VERIFIED (BELUM TENTU PROFIL LENGKAP)
  * → BOLEH AKSES PROFILE
  */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
@@ -96,7 +96,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 | SUPERADMIN ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
 
     Route::get('/superadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
         ->name('dashboard.superadmin');

@@ -109,14 +109,6 @@
                                             Restore
                                         </button>
                                     </form>
-
-                                    <!-- Force Delete -->
-                                    <button type="button"
-                                            data-route="{{ route('superadmin.users.forceDelete', $user->id) }}"
-                                            onclick="confirmDelete(this)"
-                                            class="px-3 py-1 bg-red-600 rounded-lg hover:bg-red-700 transition">
-                                        Delete Permanently
-                                    </button>
                                 </td>
                             </tr>
 

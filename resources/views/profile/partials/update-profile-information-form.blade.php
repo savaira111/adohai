@@ -68,13 +68,14 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            @if(!($user->isAdmin() || $user->isSuperAdmin()))
             <div>
                 <p class="text-sm mt-2 text-gray-800">
                     {{ __('Your email address is unverified.') }}
 
                     <button form="send-verification"
                         class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md
-                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         {{ __('Click here to re-send the verification email.') }}
                     </button>
                 </p>
@@ -85,6 +86,7 @@
                 </p>
                 @endif
             </div>
+            @endif
             @endif
         </div>
 
@@ -130,36 +132,36 @@
     </form>
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const username = document.getElementById('username');
-    const errorText = document.getElementById('username-error');
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = document.getElementById('username');
+            const errorText = document.getElementById('username-error');
 
-    const regex = /^[a-zA-Z0-9._]+$/;
+            const regex = /^[a-zA-Z0-9._]+$/;
 
-    username.addEventListener('input', () => {
-        const value = username.value;
+            username.addEventListener('input', () => {
+                const value = username.value;
 
-        if (value.includes(' ') || !regex.test(value)) {
-            // INVALID
-            username.classList.remove('border-green-500');
-            username.classList.add('border-red-500');
+                if (value.includes(' ') || !regex.test(value)) {
+                    // INVALID
+                    username.classList.remove('border-green-500');
+                    username.classList.add('border-red-500');
 
-            errorText.classList.remove('hidden');
-        } else {
-            // VALID
-            username.classList.remove('border-red-500');
-            username.classList.add('border-green-500');
+                    errorText.classList.remove('hidden');
+                } else {
+                    // VALID
+                    username.classList.remove('border-red-500');
+                    username.classList.add('border-green-500');
 
-            errorText.classList.add('hidden');
-        }
+                    errorText.classList.add('hidden');
+                }
 
-        // kosong → reset
-        if (value.length === 0) {
-            username.classList.remove('border-red-500', 'border-green-500');
-            errorText.classList.add('hidden');
-        }
-    });
-});
-</script>
+                // kosong → reset
+                if (value.length === 0) {
+                    username.classList.remove('border-red-500', 'border-green-500');
+                    errorText.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 
 </section>
