@@ -162,7 +162,6 @@
     <script>
 const password = document.getElementById('password');
 const confirm = document.getElementById('password_confirmation');
-
 const toggle = document.getElementById('toggle-password');
 const toggleConfirm = document.getElementById('toggle-password-confirm');
 
@@ -211,7 +210,17 @@ toggleConfirm.onclick = () => {
 function validatePassword() {
     const v = password.value;
 
-    if(v.length > 0) Object.values(rules).forEach(r => r.classList.remove('hidden'));
+    // hide rules jika password kosong
+    if(v.length === 0) {
+        Object.values(rules).forEach(r => r.classList.add('hidden'));
+        Object.values(bars).forEach(b => b.style.background = '#4B5563');
+        validateConfirm();
+        updateSubmitStatus();
+        return;
+    }
+
+    // tampilkan rules saat user mulai ngetik
+    Object.values(rules).forEach(r => r.classList.remove('hidden'));
 
     function check(cond, bar, rule) {
         if(cond) { bar.style.background = 'lightgreen'; rule.classList.add('hidden'); }

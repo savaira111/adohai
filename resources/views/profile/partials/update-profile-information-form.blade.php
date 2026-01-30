@@ -1,6 +1,4 @@
 <section>
-    
-
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
@@ -62,16 +60,21 @@
                 style="background-color: #212844; color: white; text-align: center;" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+            {{-- EMAIL VERIFICATION NOTICE --}}
+            @php
+                $emailChanged = old('email', $user->email) !== $user->email;
+            @endphp
+
+            @if ($emailChanged && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
             @if(!($user->isAdmin() || $user->isSuperAdmin()))
             <div>
                 <p class="text-sm mt-2 text-gray-300">
-                    {{ __('Your email address is unverified.') }}
+                    {{ __('You changed your email address. Please verify it.') }}
 
                     <button form="send-verification"
                         class="underline text-sm text-gray-400 hover:text-gray-200 rounded-md
                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        {{ __('Click here to re-send the verification email.') }}
+                        {{ __('Click here to send verification email') }}
                     </button>
                 </p>
 
@@ -160,5 +163,4 @@
             });
         });
     </script>
-
 </section>
