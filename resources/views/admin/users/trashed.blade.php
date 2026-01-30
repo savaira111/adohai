@@ -1,29 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-2xl text-white leading-tight">
-            Trashed Users
+            Pengguna Terhapus
         </h2>
     </x-slot>
 
     <div class="py-12" style="background-color:#F0E8D5; min-height:100vh;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Back Button -->
+            <!-- Tombol Kembali -->
             <a href="{{ route('superadmin.users.index') }}"
                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                Back
+                Kembali
             </a>
 
-            <!-- Search Form -->
+            <!-- Form Pencarian -->
             <form method="GET" class="flex gap-2 mt-4 mb-2">
                 <input type="text"
                        name="search"
                        value="{{ request('search') }}"
-                       placeholder="Search username or email..."
+                       placeholder="Cari username atau email..."
                        class="flex-1 px-3 py-2 rounded-lg bg-[#2a3155] text-white placeholder-gray-300 border border-transparent focus:border-[#3b4470] outline-none">
                 <button type="submit"
                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
-                    Search
+                    Cari
                 </button>
             </form>
 
@@ -35,9 +35,9 @@
                             <th class="text-left py-2">Username</th>
                             <th class="text-left py-2">Email</th>
                             <th class="text-left py-2">Role</th>
-                            <th class="text-left py-2">Deleted At</th>
-                            <th class="text-left py-2">Auto Delete In</th>
-                            <th class="text-left py-2">Actions</th>
+                            <th class="text-left py-2">Dihapus Pada</th>
+                            <th class="text-left py-2">Auto Hapus Dalam</th>
+                            <th class="text-left py-2">Aksi</th>
                         </tr>
                     </thead>
 
@@ -58,7 +58,7 @@
                             @endphp
 
                             <tr class="border-b border-gray-700 hover:bg-[#2a3155] transition">
-                                <!-- ✅ ID BERURUT -->
+                                <!-- ID Berurutan -->
                                 <td class="py-2">
                                     {{ $loop->iteration }}
                                 </td>
@@ -66,7 +66,7 @@
                                 <td class="py-2">{{ $user->username }}</td>
                                 <td class="py-2">{{ $user->email }}</td>
 
-                                <!-- ✅ ROLE DENGAN WARNA (PASTI MUNCUL) -->
+                                <!-- Role -->
                                 <td class="py-2">
                                     @if($user->role === 'admin')
                                         <span style="background:#facc15;color:#000;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">
@@ -79,25 +79,25 @@
                                     @endif
                                 </td>
 
-                                <!-- ✅ JAM WIB -->
+                                <!-- Waktu WIB -->
                                 <td class="py-2">
                                     {{ $user->deleted_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
                                 </td>
 
-                                <!-- ✅ AUTO DELETE (HARI + JAM + MENIT) -->
+                                <!-- Auto Delete -->
                                 <td class="py-2 text-sm">
                                     @if($remaining)
                                         <span class="text-green-400 font-semibold">
-                                            {{ $remaining->d }} days
-                                            {{ $remaining->h }} hours
-                                            {{ $remaining->i }} minute
+                                            {{ $remaining->d }} hari
+                                            {{ $remaining->h }} jam
+                                            {{ $remaining->i }} menit
                                         </span>
                                         <div class="text-xs text-gray-400">
-                                            Auto delete:
+                                            Auto hapus:
                                             {{ $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
                                         </div>
                                     @else
-                                        <span class="text-red-400 font-semibold">Expired</span>
+                                        <span class="text-red-400 font-semibold">Kedaluwarsa</span>
                                     @endif
                                 </td>
 
@@ -106,7 +106,7 @@
                                     <form method="POST" action="{{ route('superadmin.users.restore', $user->id) }}">
                                         @csrf
                                         <button class="px-3 py-1 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition">
-                                            Restore
+                                            Pulihkan
                                         </button>
                                     </form>
                                 </td>
@@ -115,7 +115,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-4 text-gray-300">
-                                    Trash is empty.
+                                    Tempat sampah kosong.
                                 </td>
                             </tr>
                         @endforelse
@@ -134,13 +134,13 @@
             let route = button.dataset.route;
 
             Swal.fire({
-                title: 'Are you sure?',
-                text: "This user will be permanently deleted!",
+                title: 'Apakah kamu yakin?',
+                text: "Pengguna ini akan dihapus permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya, hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     let form = document.createElement('form');

@@ -14,8 +14,25 @@ class EmailVerificationPromptController extends Controller
      */
     public function __invoke(Request $request): RedirectResponse|View
     {
-        return $request->user()->hasVerifiedEmail()
-                    ? redirect()->intended(route('dashboard', absolute: false))
-                    : view('auth.verify-email');
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            // Kalau profil belum lengkap → ke halaman edit profile
+            if (!$user->is_profile_complete) {
+                return redirect()->route('profile.edit');
+            }
+
+            // Profil lengkap → redirect ke dashboard sesuai role
+            if ($user->role === 'admin') {
+                return redirect()->route('dashboard.admin');
+            } elseif ($user->role === 'superadmin') {
+                return redirect()->route('dashboard.superadmin');
+            } else {
+                return redirect()->route('dashboard.user');
+            }
+        }
+
+        // Kalau belum verifikasi → tampil halaman verify-email
+        return view('auth.verify-email');
     }
 }

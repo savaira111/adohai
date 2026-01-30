@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-2xl text-white leading-tight">
-            User Management
+            Manajemen Pengguna
         </h2>
     </x-slot>
 
@@ -26,19 +26,19 @@
                 <input type="text"
                        name="search"
                        value="{{ request('search') }}"
-                       placeholder="Search username or role..."
+                       placeholder="Cari username atau role..."
                        class="flex-1 px-4 py-2 rounded-lg bg-[#2a3155] text-white placeholder-gray-300 text-sm outline-none border border-transparent focus:border-[#3b4470]">
 
                 <select name="role"
                         class="px-4 py-2 rounded-lg bg-[#2a3155] text-white text-sm border border-transparent focus:border-[#3b4470]">
-                    <option value="" class="text-gray-700">All Roles</option>
+                    <option value="" class="text-gray-700">Semua Role</option>
                     <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>User</option>
                     <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="superadmin" {{ request('role') === 'superadmin' ? 'selected' : '' }}>Superadmin</option>
                 </select>
 
                 <button class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">
-                    Apply
+                    Terapkan
                 </button>
             </form>
 
@@ -47,7 +47,7 @@
                 <div class="flex justify-end">
                     <a href="{{ route('admin.users.create') }}"
                        class="px-4 py-2 bg-[#212844] text-white rounded-xl hover:bg-[#1a1f3b] transition shadow-md whitespace-nowrap">
-                       + Add User
+                       + Tambah Pengguna
                     </a>
                 </div>
             @endif
@@ -58,12 +58,12 @@
                     <thead class="bg-[#1a1f3b]">
                         <tr>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">No</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Profile</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Profil</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Username</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Name</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Nama</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Email</th>
                             <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Role</th>
-                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Actions</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-300 uppercase">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700">
@@ -77,7 +77,7 @@
                                 <td class="px-3 py-2">
                                     @if($user->profile_photo_url)
                                         <img src="{{ $user->profile_photo_url }}"
-                                             alt="Profile" class="h-10 w-10 rounded-full object-cover border border-white">
+                                             alt="Profil" class="h-10 w-10 rounded-full object-cover border border-white">
                                     @else
                                         <div class="h-10 w-10 rounded-full flex items-center justify-center bg-gray-600 text-white font-bold border border-white">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
@@ -108,18 +108,20 @@
                                             <button type="button"
                                                     onclick="confirmDelete({{ $user->id }})"
                                                     class="px-3 py-1 bg-red-600 text-white rounded-xl hover:bg-red-700 transition shadow-sm">
-                                                Delete
+                                                Hapus
                                             </button>
                                         @endif
                                     @else
-                                        <span class="px-3 py-1 bg-gray-600 text-white rounded-xl text-sm">View Only</span>
+                                        <span class="px-3 py-1 bg-gray-600 text-white rounded-xl text-sm">
+                                            Hanya Lihat
+                                        </span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-4 text-gray-300">
-                                    No users found.
+                                    Tidak ada pengguna ditemukan.
                                 </td>
                             </tr>
                         @endforelse
@@ -135,13 +137,13 @@
     <script>
         function confirmDelete(userId) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "This user will be deleted permanently!",
+                title: 'Apakah kamu yakin?',
+                text: "Pengguna ini akan dihapus secara permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya, hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     let form = document.createElement('form');

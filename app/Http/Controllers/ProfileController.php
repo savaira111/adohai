@@ -24,29 +24,35 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // Validasi password (jika diisi)
         $request->validate([
             'password' => [
                 'nullable',
                 'confirmed',
                 'min:8',
-                'regex:/[A-Z]/',
-                'regex:/[a-z]/',
-                'regex:/[0-9]/',
-                'regex:/[^A-Za-z0-9]/',
+                'regex:/[A-Z]/',       // Huruf besar
+                'regex:/[a-z]/',       // Huruf kecil
+                'regex:/[0-9]/',       // Angka
+                'regex:/[^A-Za-z0-9]/', // Simbol
             ],
         ]);
 
-        // update validated fields
+        // Simpan email lama untuk cek perubahan
+        $oldEmail = $user->email;
+
+        // Update field yang valid
         $user->fill($request->validated());
 
-        // update tambahan field manual
+        // Update tambahan manual
         $user->phone = $request->input('phone');
         $user->address = $request->input('address');
 
+        // Update password jika diisi
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
+        // Tandai email unverified jika email diganti
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
@@ -55,6 +61,12 @@ class ProfileController extends Controller
 
         $user->save();
 
+        // Hanya jika email berubah → redirect ke halaman verifikasi
+        if ($user->isDirty('email')) {
+            return Redirect::route('verification.notice')->with('status', 'verification-required');
+        }
+
+        // Kalau cuma ganti nama, username, password, phone, address → tetap di edit profile
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

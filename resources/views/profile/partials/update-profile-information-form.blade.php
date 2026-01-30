@@ -1,13 +1,5 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
+    
 
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
@@ -28,7 +20,8 @@
                 :value="old('name', $user->name)"
                 required
                 autofocus
-                autocomplete="name" />
+                autocomplete="name"
+                style="background-color: #212844; color: white; text-align: center;" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
@@ -43,7 +36,8 @@
                 class="mt-1 block w-full border-gray-300"
                 :value="old('username', $user->username)"
                 required
-                autocomplete="username" />
+                autocomplete="username"
+                style="background-color: #212844; color: white; text-align: center;" />
 
             <!-- realtime warning -->
             <p id="username-error"
@@ -64,24 +58,25 @@
                 class="mt-1 block w-full"
                 :value="old('email', $user->email)"
                 required
-                autocomplete="email" />
+                autocomplete="email"
+                style="background-color: #212844; color: white; text-align: center;" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
             @if(!($user->isAdmin() || $user->isSuperAdmin()))
             <div>
-                <p class="text-sm mt-2 text-gray-800">
+                <p class="text-sm mt-2 text-gray-300">
                     {{ __('Your email address is unverified.') }}
 
                     <button form="send-verification"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md
+                        class="underline text-sm text-gray-400 hover:text-gray-200 rounded-md
                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         {{ __('Click here to re-send the verification email.') }}
                     </button>
                 </p>
 
                 @if (session('status') === 'verification-link-sent')
-                <p class="mt-2 font-medium text-sm text-green-600">
+                <p class="mt-2 font-medium text-sm text-green-500">
                     {{ __('A new verification link has been sent to your email address.') }}
                 </p>
                 @endif
@@ -99,7 +94,8 @@
                 type="text"
                 class="mt-1 block w-full"
                 :value="old('phone', $user->phone)"
-                autocomplete="tel" />
+                autocomplete="tel"
+                style="background-color: #212844; color: white; text-align: center;" />
             <x-input-error class="mt-2" :messages="$errors->get('phone')" />
         </div>
 
@@ -110,7 +106,8 @@
                 id="address"
                 name="address"
                 rows="3"
-                class="mt-1 block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('address', $user->address) }}</textarea>
+                class="mt-1 block w-full rounded-md"
+                style="background-color: #212844; color: white; text-align: center;">{{ old('address', $user->address) }}</textarea>
             <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
@@ -124,7 +121,7 @@
                 x-show="show"
                 x-transition
                 x-init="setTimeout(() => show = false, 2000)"
-                class="text-sm text-gray-600">
+                class="text-sm text-gray-300">
                 {{ __('Saved.') }}
             </p>
             @endif

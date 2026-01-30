@@ -1,13 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-2xl text-white leading-tight">
-            Add Admin
+            Tambah User
         </h2>
     </x-slot>
 
     <div class="py-12" style="background-color: #F0E8D5; min-height: 100vh;">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="rounded-2xl p-8" style="background-color:#212844; color:white;">
+
+            <h2 class="text-2xl font-bold text-center mb-6">
+                            Buat Pengguna
+                        </h2>
 
                 @if ($errors->any())
                 <div class="mb-4 p-4 bg-red-600 text-white rounded">
@@ -23,39 +27,34 @@
                     @csrf
 
                     <!-- Name -->
-                    <div>
-                        <label class="block font-semibold mb-1">Name</label>
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">Nama</label>
                         <input type="text" name="name" value="{{ old('name') }}"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                            placeholder="Enter full name" required>
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
+                            placeholder="Masukkan nama lengkap" required>
                     </div>
 
                     <!-- Username -->
-                        <div>
-                            <label class="block font-semibold mb-1">Username</label>
-                            <input type="text" name="username" value="{{ old('username') }}"
-                                class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                                placeholder="Enter username">
-
-                            @error('username')
-                                <p class="text-red-400 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">Username</label>
+                        <input type="text" name="username" value="{{ old('username') }}"
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
+                            placeholder="Masukkan username">
+                    </div>
 
                     <!-- Email -->
-                    <div>
+                    <div class="mb-4">
                         <label class="block font-semibold mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email') }}"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                            placeholder="Enter email" required>
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
+                            placeholder="Masukkan email" required>
                     </div>
 
                     <!-- Role -->
-                    <div>
-                        <label class="block font-semibold mb-1">Role</label>
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">Peran</label>
                         <select name="role"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white focus:outline-none"
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
                             required>
                             <option value="user" class="text-black">User</option>
                             <option value="admin" selected class="text-black">Admin</option>
@@ -63,83 +62,60 @@
                     </div>
 
                     <!-- Password -->
-                    <div class="relative">
+                    <div class="relative mb-4">
                         <label class="block font-semibold mb-1">Password</label>
                         <input type="password" id="password" name="password"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                            placeholder="Enter password" required>
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
+                            placeholder="Masukkan password" required>
 
-                        <button type="button" id="togglePassword" class="absolute right-3 top-9 text-gray-300 hover:text-white">
-                            <svg id="eyeOpen" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg id="eyeClosed" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
-                            </svg>
+                        <button type="button" id="togglePassword"
+                            class="absolute right-3 top-9 text-gray-300 hover:text-white">
+                            <span id="eyeOpen" class="hidden">👁</span>
+                            <span id="eyeClosed">🙈</span>
                         </button>
 
                         <div id="pwBars" class="flex gap-2 mt-3 hidden">
-                            <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="length"></div>
-                            <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="upper"></div>
-                            <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="lower"></div>
-                            <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="number"></div>
-                            <div class="pwbar h-3 w-1/5 bg-gray-600 rounded" data-check="symbol"></div>
+                            <div class="pwbar h-2 flex-1 bg-gray-600 rounded" data-check="length"></div>
+                            <div class="pwbar h-2 flex-1 bg-gray-600 rounded" data-check="upper"></div>
+                            <div class="pwbar h-2 flex-1 bg-gray-600 rounded" data-check="lower"></div>
+                            <div class="pwbar h-2 flex-1 bg-gray-600 rounded" data-check="number"></div>
+                            <div class="pwbar h-2 flex-1 bg-gray-600 rounded" data-check="symbol"></div>
                         </div>
 
-                        <ul id="pwRules" class="mt-2 text-xs space-y-1 hidden">
-                            <li data-check="length" class="text-red-400">• Minimal 8 karakter</li>
-                            <li data-check="upper" class="text-red-400">• Huruf besar</li>
-                            <li data-check="lower" class="text-red-400">• Huruf kecil</li>
-                            <li data-check="number" class="text-red-400">• Angka</li>
-                            <li data-check="symbol" class="text-red-400">• Simbol</li>
+                        <!-- RULES PUTIH (HIDE JIKA SUDAH VALID) -->
+                        <ul id="pwRules" class="mt-2 text-xs space-y-1 text-white hidden">
+                            <li data-check="length">• Minimal 8 karakter</li>
+                            <li data-check="upper">• Mengandung huruf besar</li>
+                            <li data-check="lower">• Mengandung huruf kecil</li>
+                            <li data-check="number">• Mengandung angka</li>
+                            <li data-check="symbol">• Mengandung simbol</li>
                         </ul>
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="relative mb-3">
-                        <label class="block font-semibold mb-1">Confirm Password</label>
+                    <div class="relative mb-6">
+                        <label class="block font-semibold mb-1">Konfirmasi Password</label>
                         <input type="password" id="confirmPassword" name="password_confirmation"
-                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white placeholder-gray-300 focus:outline-none"
-                            placeholder="Confirm password" required>
+                            class="w-full px-4 py-2 rounded-lg border border-white/30 bg-[#2a3155] text-white"
+                            placeholder="Ulangi password" required>
 
-                        <button type="button" id="toggleConfirm" class="absolute right-3 top-9 text-gray-300 hover:text-white">
-                            <svg id="confirmEyeOpen" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg id="confirmEyeClosed" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
-                            </svg>
+                        <button type="button" id="toggleConfirm"
+                            class="absolute right-3 top-9 text-gray-300 hover:text-white">
+                            <span id="confirmEyeOpen" class="hidden">👁</span>
+                            <span id="confirmEyeClosed">🙈</span>
                         </button>
                     </div>
 
-                    <div class="flex gap-4">
-                        <button type="submit" id="submitBtn"
-                            class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg disabled:opacity-50"
-                            disabled>
-                            Add Admin
-                        </button>
-
-                        <a href="{{ route('superadmin.users.index') }}"
-                            class="flex-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg text-center transition"
-                            style="box-shadow:none !important;">
-                            Cancel
-                        </a>
-                    </div>
+                    <button type="submit" id="submitBtn"
+                        class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg disabled:opacity-50"
+                        disabled>
+                        Tambah Admin
+                    </button>
                 </form>
 
             </div>
         </div>
     </div>
-
-
 
     <script>
         const password = document.getElementById('password');
@@ -159,13 +135,8 @@
         function updateStatus() {
             const v = password.value;
 
-            if (v.length) {
-                pwBars.classList.remove('hidden');
-                pwRules.classList.remove('hidden');
-            } else {
-                pwBars.classList.add('hidden');
-                pwRules.classList.add('hidden');
-            }
+            pwBars.classList.toggle('hidden', !v);
+            pwRules.classList.toggle('hidden', !v);
 
             document.querySelectorAll('.pwbar').forEach(bar => {
                 bar.classList.toggle('bg-green-500', checks[bar.dataset.check](v));
@@ -173,30 +144,25 @@
             });
 
             document.querySelectorAll('#pwRules [data-check]').forEach(rule => {
-                rule.classList.toggle('text-green-400', checks[rule.dataset.check](v));
-                rule.classList.toggle('text-red-400', !checks[rule.dataset.check](v));
+                rule.classList.toggle('hidden', checks[rule.dataset.check](v));
             });
 
             matchConfirm();
         }
 
         function matchConfirm() {
-            const p = password.value;
-            const c = confirmPassword.value;
-
-            const allGood = Object.values(checks).every(fn => fn(p)) && p === c;
-
-            confirmPassword.style.borderColor = p === c && c ? 'lime' : c ? 'red' : 'rgba(255,255,255,.3)';
-            submitBtn.disabled = !allGood;
+            const match = password.value === confirmPassword.value && confirmPassword.value;
+            confirmPassword.style.borderColor = match ? 'lime' : confirmPassword.value ? 'red' : '';
+            submitBtn.disabled = !(match && Object.values(checks).every(fn => fn(password.value)));
         }
 
-        document.getElementById('togglePassword').onclick = () => {
+        togglePassword.onclick = () => {
             password.type = password.type === 'password' ? 'text' : 'password';
             eyeOpen.classList.toggle('hidden');
             eyeClosed.classList.toggle('hidden');
         };
 
-        document.getElementById('toggleConfirm').onclick = () => {
+        toggleConfirm.onclick = () => {
             confirmPassword.type = confirmPassword.type === 'password' ? 'text' : 'password';
             confirmEyeOpen.classList.toggle('hidden');
             confirmEyeClosed.classList.toggle('hidden');

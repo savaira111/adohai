@@ -3,7 +3,7 @@
 
         <x-auth-session-status class="mb-4 text-green-300" :status="session('status')" />
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register') }}" id="register-form">
             @csrf
 
             <!-- Username -->
@@ -76,11 +76,7 @@
                     </svg>
                 </button>
 
-                @error('password')
-                <span class="text-red-400 text-sm">{{ $message }}</span>
-                @enderror
-
-                <!-- Password Rules (hidden until typing) -->
+                <!-- Password Rules -->
                 <div id="pw-rules" class="mt-3 hidden">
                     <div class="flex gap-2">
                         <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-length"></div>
@@ -109,13 +105,11 @@
                     name="password_confirmation"
                     class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white placeholder-gray-300 border border-white focus:outline-none"
                     placeholder="Confirm password"
-                    required
-                    oninput="validateConfirm()">
+                    oninput="validateConfirm()"
+                    required>
 
-                <!-- Result icon -->
                 <span id="confirmIcon" class="absolute right-3 top-9 opacity-0 transition-all duration-200"></span>
 
-                <!-- Toggle Eye -->
                 <button type="button" id="toggle-confirm" class="absolute right-9 top-9 text-gray-400 hover:text-gray-200">
                     <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
@@ -127,13 +121,13 @@
                 </button>
             </div>
 
-            <div class="mt-4">
+            <!-- reCAPTCHA -->
+            <div class="mt-4 p-3 rounded border border-gray-500 flex flex-col items-center" id="captcha-wrapper">
                 <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"></div>
-                @error('g-recaptcha-response')
-                <span class="text-red-400 text-sm">{{ $message }}</span>
-                @enderror
+                <span id="captcha-error" class="text-red-400 text-sm mt-2 hidden text-center">
+                    ⚠️ Harap verifikasi bahwa Anda bukan robot.
+                </span>
             </div>
-
 
             <div class="flex flex-col gap-4 mt-6">
                 <x-primary-button class="w-full justify-center bg-gray text-[#212844] hover:bg-white-200">
@@ -166,26 +160,20 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script>
+        // Password rules
         const pw = document.getElementById('password');
         const rulesBox = document.getElementById('pw-rules');
-
         pw.addEventListener('input', () => {
             const val = pw.value;
-
-            if (val.length > 0) rulesBox.classList.remove('hidden');
-            else rulesBox.classList.add('hidden');
+            rulesBox.classList.toggle('hidden', val.length === 0);
 
             function check(cond, bar, rule) {
                 const barEl = document.getElementById(bar);
                 const ruleEl = document.getElementById(rule);
-
-                if (cond) {
-                    barEl.classList.replace('bg-gray-600', 'bg-green-500');
-                    ruleEl.classList.replace('text-red-400', 'text-green-400');
-                } else {
-                    barEl.classList.replace('bg-green-500', 'bg-gray-600');
-                    ruleEl.classList.replace('text-green-400', 'text-red-400');
-                }
+                barEl.classList.toggle('bg-green-500', cond);
+                barEl.classList.toggle('bg-gray-600', !cond);
+                ruleEl.classList.toggle('text-green-400', cond);
+                ruleEl.classList.toggle('text-red-400', !cond);
             }
 
             check(val.length >= 8, 'bar-length', 'rule-length');
@@ -195,53 +183,47 @@
             check(/[^A-Za-z0-9]/.test(val), 'bar-symbol', 'rule-symbol');
         });
 
-        // toggle pw
+        // Toggle password
+        const eyeOpen = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
         document.getElementById('toggle-password').onclick = () => {
             if (pw.type === "password") {
-                pw.type = "text";
-                eyeOpen.classList.remove("hidden");
-                eyeClosed.classList.add("hidden");
+                pw.type = "text"; eyeOpen.classList.remove("hidden"); eyeClosed.classList.add("hidden");
             } else {
-                pw.type = "password";
-                eyeOpen.classList.add("hidden");
-                eyeClosed.classList.remove("hidden");
+                pw.type = "password"; eyeOpen.classList.add("hidden"); eyeClosed.classList.remove("hidden");
             }
         }
 
-        function validateConfirm() {
-            const main = document.getElementById('password').value;
-            const confirm = document.getElementById('confirmPassword');
-            const icon = document.getElementById('confirmIcon');
-
-            if (confirm.value === "") {
-                confirm.style.borderColor = "white";
-                icon.style.opacity = "0";
-                icon.innerHTML = "";
-                return;
-            }
-
-            if (main === confirm.value) {
-                confirm.style.borderColor = "#22c55e";
-                icon.innerHTML = `
-        <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-        </svg>`;
-            } else {
-                confirm.style.borderColor = "#ef4444";
-                icon.innerHTML = `
-        <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>`;
-            }
-
-            icon.style.opacity = "1";
-        }
-
-        // toggle confirm eye
+        // Confirm password
+        const confirm = document.getElementById('confirmPassword');
+        const icon = document.getElementById('confirmIcon');
         document.getElementById('toggle-confirm').onclick = () => {
-            const c = document.getElementById('confirmPassword');
-            c.type = c.type === "password" ? "text" : "password";
+            confirm.type = confirm.type === "password" ? "text" : "password";
         }
-    </script>
+        function validateConfirm() {
+            if(confirm.value===""){ confirm.style.borderColor="white"; icon.style.opacity="0"; icon.innerHTML=""; return;}
+            if(confirm.value===pw.value){
+                confirm.style.borderColor="#22c55e";
+                icon.innerHTML=`<svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`;
+            } else{
+                confirm.style.borderColor="#ef4444";
+                icon.innerHTML=`<svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`;
+            }
+            icon.style.opacity="1";
+        }
 
+        // reCAPTCHA check sebelum submit (sama kayak login)
+        const form = document.getElementById('register-form');
+        const captchaError = document.getElementById('captcha-error');
+        const captchaWrapper = document.getElementById('captcha-wrapper');
+        form.addEventListener('submit', function(e) {
+            if(!grecaptcha.getResponse()){
+                e.preventDefault();
+                captchaError.classList.remove('hidden');
+                captchaWrapper.classList.add('border-red-500');
+                captchaWrapper.classList.remove('border-gray-500');
+                captchaWrapper.scrollIntoView({behavior:'smooth',block:'center'});
+            }
+        });
+    </script>
 </x-guest-layout>

@@ -2,7 +2,7 @@
     <!-- Card -->
     <div class="bg-[#212844] text-white rounded-lg shadow-md px-6 py-6">
 
-        <!-- Session Status -->
+        <!-- Status Sesi -->
         <x-auth-session-status class="mb-4 text-green-300" :status="session('status')" />
 
         <form method="POST" action="{{ route('login') }}" id="login-form">
@@ -10,7 +10,7 @@
 
             <!-- Login -->
             <div>
-                <x-input-label for="login" value="Email / Username" class="!text-white" />
+                <x-input-label for="login" value="Email / Nama Pengguna" class="!text-white" />
 
                 <x-text-input
                     id="login"
@@ -18,7 +18,7 @@
                     type="text"
                     name="login"
                     :value="old('login')"
-                    placeholder="Enter Email / Username"
+                    placeholder="Masukkan Email / Nama Pengguna"
                     required
                     autofocus
                     autocomplete="username" />
@@ -26,16 +26,16 @@
                 <x-input-error :messages="$errors->get('login')" class="mt-2 text-red-300" />
             </div>
 
-            <!-- Password -->
+            <!-- Kata Sandi -->
             <div class="relative mt-4">
-                <label for="password" class="block font-semibold mb-1 text-white">Password</label>
+                <label for="password" class="block font-semibold mb-1 text-white">Kata Sandi</label>
 
                 <input
                     type="password"
                     name="password"
                     id="password"
                     class="w-full px-4 py-2 rounded-lg bg-[#212844] text-white border border-gray-500 focus:outline-none"
-                    placeholder="Enter password"
+                    placeholder="Masukkan kata sandi"
                     required>
 
                 <!-- Toggle Eye -->
@@ -43,7 +43,8 @@
                     class="absolute right-3 top-9 text-gray-400 hover:text-gray-200">
                     <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-5-10-5s1.5-2.5 5-4.5m0 0a3 3 0 114 4M3 3l18 18" />
-                    </svg> <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    </svg>
+                    <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
@@ -54,14 +55,14 @@
                 @enderror
             </div>
 
-            <!-- Actions -->
+            <!-- Aksi -->
             <div class="flex flex-col gap-4 mt-6">
 
-                <!-- Forgot Password -->
+                <!-- Lupa Kata Sandi -->
                 @if (Route::has('password.request'))
                 <a href="{{ route('password.request') }}"
                     class="text-sm text-gray-300 hover:text-white underline">
-                    Forgot your password?
+                    Lupa kata sandi?
                 </a>
                 @endif
 
@@ -75,27 +76,27 @@
                     </span>
                 </div>
 
-                <!-- Login Button -->
+                <!-- Tombol Masuk -->
                 <x-primary-button class="w-full justify-center bg-gray text-[#212844]">
-                    Log in
+                    Masuk
                 </x-primary-button>
 
-                <!-- Register -->
+                <!-- Daftar -->
                 @if (Route::has('register'))
                 <a href="{{ route('register') }}"
                     class="text-sm text-gray-300 hover:text-white underline text-center">
-                    Don't have an account? Register
+                    Belum punya akun? Daftar
                 </a>
                 @endif
 
-                <!-- Divider -->
+                <!-- Pembatas -->
                 <div class="relative flex py-5 items-center">
                     <div class="flex-grow border-t border-gray-500"></div>
-                    <span class="flex-shrink-0 mx-4 text-gray-300">Or Login With</span>
+                    <span class="flex-shrink-0 mx-4 text-gray-300">Atau Masuk Dengan</span>
                     <div class="flex-grow border-t border-gray-500"></div>
                 </div>
 
-                <!-- GOOGLE LOGIN -->
+                <!-- LOGIN GOOGLE -->
                 <div class="flex justify-center">
                     <a href="{{ route('social.redirect', ['provider' => 'google']) }}"
                         class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">

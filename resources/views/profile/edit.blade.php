@@ -74,12 +74,8 @@
                                 </svg>
                             </button>
 
-                            @error('password')
-                                <span class="text-red-300 text-sm">{{ $message }}</span>
-                            @enderror
-
                             <!-- Strength Bars -->
-                            <div class="flex gap-2 mt-3">
+                            <div class="flex gap-2 mt-3" id="bars">
                                 <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-length"></div>
                                 <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-uppercase"></div>
                                 <div class="h-3 w-1/5 bg-gray-600 rounded" id="bar-lowercase"></div>
@@ -88,19 +84,18 @@
                             </div>
 
                             <!-- Rules -->
-                            <ul class="mt-2 text-xs space-y-1">
-                                <li id="rule-length" class="text-red-400">• Minimal 8 karakter</li>
-                                <li id="rule-uppercase" class="text-red-400">• Huruf besar</li>
-                                <li id="rule-lowercase" class="text-red-400">• Huruf kecil</li>
-                                <li id="rule-number" class="text-red-400">• Angka</li>
-                                <li id="rule-symbol" class="text-red-400">• Simbol</li>
+                            <ul class="mt-2 text-xs space-y-1" id="rules">
+                                <li data-rule="length" class="text-red-400">• Minimal 8 karakter</li>
+                                <li data-rule="uppercase" class="text-red-400">• Huruf besar</li>
+                                <li data-rule="lowercase" class="text-red-400">• Huruf kecil</li>
+                                <li data-rule="number" class="text-red-400">• Angka</li>
+                                <li data-rule="symbol" class="text-red-400">• Simbol</li>
                             </ul>
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="relative mb-4">
                             <x-input-label for="password_confirmation" value="Confirm Password" />
-                            
                             <x-text-input id="password_confirmation" name="password_confirmation" type="password"
                                 class="mt-1 block w-full bg-[#2a3155] border-[#3a4270] !text-white"
                                 autocomplete="new-password" />
@@ -121,16 +116,17 @@
                                 </svg>
                             </button>
 
+                            <small id="confirmError" class="text-red-400 hidden">Password tidak sama</small>
+
                             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2 text-red-300" />
                         </div>
 
                         <!-- BUTTON SAVE -->
                         <div class="flex justify-center pt-2">
-                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition">
+                            <button type="submit" id="submitBtn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition" disabled>
                                 Update Password
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -144,7 +140,6 @@
                     </div>
                 </div>
             @endif
-
         </div>
     </div>
 
@@ -165,54 +160,95 @@
     </style>
 
     <script>
-        const password = document.getElementById('password');
-        const toggle = document.getElementById('toggle-password');
-        const eyeOpen = document.getElementById('eye-open');
-        const eyeClosed = document.getElementById('eye-closed');
+const password = document.getElementById('password');
+const confirm = document.getElementById('password_confirmation');
 
-        const bars = {
-            length: document.getElementById('bar-length'),
-            uppercase: document.getElementById('bar-uppercase'),
-            lowercase: document.getElementById('bar-lowercase'),
-            number: document.getElementById('bar-number'),
-            symbol: document.getElementById('bar-symbol')
-        };
+const toggle = document.getElementById('toggle-password');
+const toggleConfirm = document.getElementById('toggle-password-confirm');
 
-        const rules = {
-            length: document.getElementById('rule-length'),
-            uppercase: document.getElementById('rule-uppercase'),
-            lowercase: document.getElementById('rule-lowercase'),
-            number: document.getElementById('rule-number'),
-            symbol: document.getElementById('rule-symbol')
-        };
+const eyeOpen = document.getElementById('eye-open');
+const eyeClosed = document.getElementById('eye-closed');
+const confirmEyeOpen = document.getElementById('confirm-eye-open');
+const confirmEyeClosed = document.getElementById('confirm-eye-closed');
 
-        toggle.addEventListener('click', () => {
-            if(password.type === 'password') {
-                password.type = 'text';
-                eyeOpen.classList.remove('hidden');
-                eyeClosed.classList.add('hidden');
-            } else {
-                password.type = 'password';
-                eyeOpen.classList.add('hidden');
-                eyeClosed.classList.remove('hidden');
-            }
-        });
+const bars = {
+    length: document.getElementById('bar-length'),
+    uppercase: document.getElementById('bar-uppercase'),
+    lowercase: document.getElementById('bar-lowercase'),
+    number: document.getElementById('bar-number'),
+    symbol: document.getElementById('bar-symbol'),
+};
 
-        password.addEventListener('input', () => {
-            const val = password.value;
-            function check(cond, bar, rule) {
-                cond 
-                    ? (bar.classList.replace('bg-gray-600', 'bg-green-500'),
-                       rule.classList.replace('text-red-400', 'text-green-400'))
-                    : (bar.classList.replace('bg-green-500', 'bg-gray-600'),
-                       rule.classList.replace('text-green-400', 'text-red-400'));
-            }
+const rules = {
+    length: document.querySelector('[data-rule="length"]'),
+    uppercase: document.querySelector('[data-rule="uppercase"]'),
+    lowercase: document.querySelector('[data-rule="lowercase"]'),
+    number: document.querySelector('[data-rule="number"]'),
+    symbol: document.querySelector('[data-rule="symbol"]'),
+};
 
-            check(val.length >= 8, bars.length, rules.length);
-            check(/[A-Z]/.test(val), bars.uppercase, rules.uppercase);
-            check(/[a-z]/.test(val), bars.lowercase, rules.lowercase);
-            check(/[0-9]/.test(val), bars.number, rules.number);
-            check(/[^A-Za-z0-9]/.test(val), bars.symbol, rules.symbol);
-        });
-    </script>
+const submitBtn = document.getElementById('submitBtn');
+const confirmError = document.getElementById('confirmError');
+
+/* ===== INIT ===== */
+Object.values(rules).forEach(r => r.classList.add('hidden'));
+Object.values(bars).forEach(b => b.style.background = '#4B5563');
+submitBtn.disabled = true;
+
+/* ===== TOGGLE ===== */
+toggle.onclick = () => {
+    password.type = password.type === 'password' ? 'text' : 'password';
+    eyeOpen.classList.toggle('hidden');
+    eyeClosed.classList.toggle('hidden');
+};
+toggleConfirm.onclick = () => {
+    confirm.type = confirm.type === 'password' ? 'text' : 'password';
+    confirmEyeOpen.classList.toggle('hidden');
+    confirmEyeClosed.classList.toggle('hidden');
+};
+
+/* ===== VALIDATION ===== */
+function validatePassword() {
+    const v = password.value;
+
+    if(v.length > 0) Object.values(rules).forEach(r => r.classList.remove('hidden'));
+
+    function check(cond, bar, rule) {
+        if(cond) { bar.style.background = 'lightgreen'; rule.classList.add('hidden'); }
+        else { bar.style.background = '#4B5563'; rule.classList.remove('hidden'); }
+    }
+
+    check(v.length >= 8, bars.length, rules.length);
+    check(/[A-Z]/.test(v), bars.uppercase, rules.uppercase);
+    check(/[a-z]/.test(v), bars.lowercase, rules.lowercase);
+    check(/[0-9]/.test(v), bars.number, rules.number);
+    check(/[^A-Za-z0-9]/.test(v), bars.symbol, rules.symbol);
+
+    validateConfirm();
+    updateSubmitStatus();
+}
+
+function validateConfirm() {
+    if(!confirm.value) { confirm.style.borderColor = ''; confirmError.classList.add('hidden'); return false; }
+
+    if(confirm.value === password.value) {
+        confirm.style.borderColor = 'lightgreen';
+        confirmError.classList.add('hidden');
+        return true;
+    } else {
+        confirm.style.borderColor = 'red';
+        confirmError.classList.remove('hidden');
+        return false;
+    }
+}
+
+function updateSubmitStatus() {
+    const allValid = Object.keys(rules).every(k => bars[k].style.background === 'lightgreen');
+    submitBtn.disabled = !(allValid && validateConfirm());
+}
+
+/* ===== EVENTS ===== */
+password.addEventListener('input', validatePassword);
+confirm.addEventListener('input', () => { validateConfirm(); updateSubmitStatus(); });
+</script>
 </x-app-layout>
