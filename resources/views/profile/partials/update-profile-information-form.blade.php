@@ -3,7 +3,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" onsubmit="return checkEmailVerification()">
         @csrf
         @method('patch')
 
@@ -61,30 +61,17 @@
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             {{-- EMAIL VERIFICATION NOTICE --}}
-            @php
-                $emailChanged = old('email', $user->email) !== $user->email;
-            @endphp
-
-            @if ($emailChanged && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-            @if(!($user->isAdmin() || $user->isSuperAdmin()))
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
             <div>
                 <p class="text-sm mt-2 text-gray-300">
-                    {{ __('You changed your email address. Please verify it.') }}
-
+                    {{ __('Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.') }}
                     <button form="send-verification"
                         class="underline text-sm text-gray-400 hover:text-gray-200 rounded-md
-                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        {{ __('Click here to send verification email') }}
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        {{ __('Klik di sini untuk mengirim ulang email verifikasi') }}
                     </button>
                 </p>
-
-                @if (session('status') === 'verification-link-sent')
-                <p class="mt-2 font-medium text-sm text-green-500">
-                    {{ __('A new verification link has been sent to your email address.') }}
-                </p>
-                @endif
             </div>
-            @endif
             @endif
         </div>
 
@@ -142,25 +129,30 @@
                 const value = username.value;
 
                 if (value.includes(' ') || !regex.test(value)) {
-                    // INVALID
                     username.classList.remove('border-green-500');
                     username.classList.add('border-red-500');
-
                     errorText.classList.remove('hidden');
                 } else {
-                    // VALID
                     username.classList.remove('border-red-500');
                     username.classList.add('border-green-500');
-
                     errorText.classList.add('hidden');
                 }
 
-                // kosong → reset
                 if (value.length === 0) {
                     username.classList.remove('border-red-500', 'border-green-500');
                     errorText.classList.add('hidden');
                 }
             });
         });
+
+        // Popup alert jika email belum diverifikasi
+        function checkEmailVerification() {
+            const emailUnverified = @json($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail());
+            if (emailUnverified) {
+                alert('Email Anda belum diverifikasi. Silakan verifikasi email terlebih dahulu.');
+                return false; // hentikan submit
+            }
+            return true;
+        }
     </script>
 </section>
