@@ -96,7 +96,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 | SUPERADMIN ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:superadmin'])->group(function () {
+Route::middleware(['auth', 'role:admin, superadmin'])->group(function () {
 
     Route::get('/superadmin/dashboard', [SuperAdminDashboardController::class, 'index'])
         ->name('dashboard.superadmin');

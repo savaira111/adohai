@@ -44,47 +44,39 @@
                     <tbody>
                         @forelse($users as $user)
 
-                            {{-- Superadmin tetap tidak ditampilkan --}}
+                            {{-- Superadmin tidak ditampilkan --}}
                             @if($user->role === 'superadmin')
                                 @continue
                             @endif
 
                             @php
                                 $expiresAt = $user->deleted_at->copy()->addDays(7);
-
                                 $remaining = now()->lt($expiresAt)
                                     ? $expiresAt->diff(now())
                                     : null;
                             @endphp
 
                             <tr class="border-b border-gray-700 hover:bg-[#2a3155] transition">
-                                <!-- ID Berurutan -->
-                                <td class="py-2">
-                                    {{ $loop->iteration }}
-                                </td>
-
+                                <td class="py-2">{{ $loop->iteration }}</td>
                                 <td class="py-2">{{ $user->username }}</td>
                                 <td class="py-2">{{ $user->email }}</td>
 
-                                <!-- Role -->
                                 <td class="py-2">
                                     @if($user->role === 'admin')
-                                        <span style="background:#facc15;color:#000;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-black">
                                             Admin
                                         </span>
                                     @elseif($user->role === 'user')
-                                        <span style="background:#22c55e;color:#fff;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">
+                                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">
                                             User
                                         </span>
                                     @endif
                                 </td>
 
-                                <!-- Waktu WIB -->
                                 <td class="py-2">
                                     {{ $user->deleted_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
                                 </td>
 
-                                <!-- Auto Delete -->
                                 <td class="py-2 text-sm">
                                     @if($remaining)
                                         <span class="text-green-400 font-semibold">
@@ -97,18 +89,19 @@
                                             {{ $expiresAt->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
                                         </div>
                                     @else
-                                        <span class="text-red-400 font-semibold">Kedaluwarsa</span>
+                                        <span class="text-red-400 font-semibold">
+                                            Kedaluwarsa
+                                        </span>
                                     @endif
                                 </td>
 
                                 <td class="py-2 flex gap-2">
                                     <!-- Restore -->
-                                    <form method="POST" action="{{ route('superadmin.users.restore', $user->id) }}">
-                                        @csrf
-                                        <button class="px-3 py-1 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition">
-                                            Pulihkan
-                                        </button>
-                                    </form>
+                                    <button
+                                        onclick="confirmRestore('{{ route('superadmin.users.restore', $user->id) }}')"
+                                        class="px-3 py-1 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 transition">
+                                        Pulihkan
+                                    </button>
                                 </td>
                             </tr>
 
@@ -130,16 +123,39 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function confirmDelete(button) {
-            let route = button.dataset.route;
+        function confirmRestore(route) {
+            Swal.fire({
+                title: 'Pulihkan pengguna?',
+                text: 'Pengguna ini akan dikembalikan ke sistem.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, pulihkan'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.createElement('form');
+                    form.action = route;
+                    form.method = 'POST';
 
+                    form.innerHTML = `
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    `;
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function confirmDelete(route) {
             Swal.fire({
                 title: 'Apakah kamu yakin?',
-                text: "Pengguna ini akan dihapus permanen!",
+                text: 'Pengguna ini akan dihapus permanen!',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Ya, hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
